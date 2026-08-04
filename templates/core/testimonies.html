@@ -1,0 +1,153 @@
+{% extends 'core/base.html' %}
+{% block title %}Testimonies — {{ settings.church_name }}{% endblock %}
+{% block extra_css %}
+<style>
+.th-hero{padding:90px 5% 60px;background:linear-gradient(160deg,var(--bg) 0%,var(--bg2) 55%,var(--bg) 100%);text-align:center;position:relative;overflow:hidden;}
+.th-hero::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 65% 60% at 50% 45%,rgba(192,24,42,.1) 0%,transparent 65%);}
+.th-hero-inner{position:relative;z-index:2;}
+/* Filter */
+.th-filter{background:var(--bg2);border-bottom:1px solid var(--border);padding:0 5%;display:flex;align-items:center;gap:8px;overflow-x:auto;scrollbar-width:none;min-height:52px;position:sticky;top:64px;z-index:100;}
+.th-filter::-webkit-scrollbar{display:none;}
+.th-cat-btn{padding:6px 15px;border:1.5px solid var(--border2);border-radius:50px;background:transparent;color:var(--muted);font-size:.7rem;font-weight:600;cursor:pointer;transition:all .2s;white-space:nowrap;flex-shrink:0;font-family:'Poppins',sans-serif;}
+.th-cat-btn:hover,.th-cat-btn.active{background:var(--red);border-color:var(--red);color:#fff;}
+/* Mosaic */
+.th-mosaic{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:32px;}
+/* Card = white like SMHOS */
+.testi-card-full{background:#fff;border-radius:var(--radius-lg);padding:26px 24px;display:flex;flex-direction:column;gap:14px;box-shadow:0 2px 16px rgba(0,0,0,.1);transition:box-shadow .25s var(--ease),transform .25s var(--ease);cursor:pointer;text-decoration:none;}
+.testi-card-full:hover{box-shadow:0 8px 32px rgba(0,0,0,.18);transform:translateY(-4px);}
+.tcf-top{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;}
+.tcf-qq{color:var(--red2);font-size:2.2rem;font-weight:900;line-height:1;}
+.tcf-cat{background:rgba(192,24,42,.1);color:var(--red);font-size:.6rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;padding:5px 12px;border-radius:50px;white-space:nowrap;}
+.tcf-title{font-size:.95rem;font-weight:700;color:#111;line-height:1.35;}
+.tcf-excerpt{font-size:.8rem;color:#555;line-height:1.7;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;}
+.tcf-read-more{font-size:.7rem;font-weight:700;color:var(--red);letter-spacing:.06em;text-transform:uppercase;display:flex;align-items:center;gap:4px;margin-top:auto;}
+.tcf-author{display:flex;align-items:center;gap:12px;border-top:1px solid #f0f0f0;padding-top:14px;margin-top:auto;}
+.tcf-av{width:40px;height:40px;border-radius:50%;background:rgba(192,24,42,.1);border:2px solid rgba(192,24,42,.2);display:flex;align-items:center;justify-content:center;font-size:.9rem;font-weight:700;color:var(--red);flex-shrink:0;overflow:hidden;}
+.tcf-av img{width:100%;height:100%;object-fit:cover;display:block;}
+.tcf-name{font-size:.8rem;font-weight:700;color:#111;}
+.tcf-loc{font-size:.68rem;color:#888;display:flex;align-items:center;gap:4px;margin-top:1px;}
+.tcf-loc i{color:var(--red);font-size:.6rem;}
+/* Load more */
+.lm-wrap{text-align:center;padding:40px 0;}
+.lm-bar{width:160px;height:3px;background:rgba(255,255,255,.1);border-radius:2px;margin:0 auto 16px;overflow:hidden;}
+.lm-fill{height:100%;background:var(--red);border-radius:2px;transition:width .4s;}
+.lm-count{font-size:.75rem;color:var(--muted);margin-bottom:14px;}
+/* Share CTA */
+.share-cta{background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius);padding:32px;text-align:center;margin-top:40px;}
+.share-cta h3{font-size:1.3rem;font-weight:800;color:var(--white);margin-bottom:8px;}
+.share-cta p{font-size:.82rem;color:var(--muted);margin-bottom:20px;line-height:1.65;}
+.empty-state{text-align:center;padding:70px 20px;}
+.empty-state i{font-size:3rem;color:var(--dim);display:block;margin-bottom:14px;}
+.empty-state h3{font-size:1.4rem;font-weight:700;color:var(--text);margin-bottom:8px;}
+@media(max-width:900px){.th-mosaic{grid-template-columns:repeat(2,1fr);}}
+@media(max-width:560px){.th-mosaic{grid-template-columns:1fr;}}
+</style>
+{% endblock %}
+{% block content %}
+<section class="th-hero">
+  <div class="th-hero-inner">
+    <div class="breadcrumb" style="justify-content:center;"><a href="/">Home</a><i class="fas fa-chevron-right"></i><span>Testimonies</span></div>
+    <div class="eyebrow" style="justify-content:center;margin-bottom:10px;">HEAVEN'S EVIDENCE</div>
+    <h1 class="sec-title reveal" style="font-size:clamp(2rem,6vw,4rem);">What God is <em>Doing</em></h1>
+    <p class="sec-sub reveal d1" style="margin:12px auto;max-width:500px;">Real stories of miracles, breakthroughs, and transformation from believers worldwide.</p>
+  </div>
+</section>
+
+<!-- Filter -->
+<div class="th-filter" id="filterBar">
+  <button class="th-cat-btn active" onclick="filterCat(this,'all')">All</button>
+  <button class="th-cat-btn" onclick="filterCat(this,'Healing')">Healing</button>
+  <button class="th-cat-btn" onclick="filterCat(this,'Financial Breakthrough')">Financial</button>
+  <button class="th-cat-btn" onclick="filterCat(this,'Marriage &amp; Family')">Marriage &amp; Family</button>
+  <button class="th-cat-btn" onclick="filterCat(this,'Salvation')">Salvation</button>
+  <button class="th-cat-btn" onclick="filterCat(this,'Career &amp; Education')">Career</button>
+  <button class="th-cat-btn" onclick="filterCat(this,'Deliverance')">Deliverance</button>
+  <button class="th-cat-btn" onclick="filterCat(this,'General')">General</button>
+</div>
+
+<section class="section">
+  <div class="wrap">
+    {% if testimonies %}
+    <div class="th-mosaic" id="mosaic">
+      {% for t in testimonies %}
+      <a href="/testimony/{{ t.pk }}/" class="testi-card-full reveal d{{ forloop.counter }}" data-cat="{{ t.category }}" >
+        <div class="tcf-top"><div class="tcf-qq">"</div><div class="tcf-cat">{{ t.category }}</div></div>
+        <div class="tcf-excerpt">{{ t.testimony }}</div>
+        <div class="tcf-read-more">READ MORE <i class="fas fa-long-arrow-alt-right"></i></div>
+        <div class="tcf-author">
+          <div class="tcf-av">
+            {% if t.photo_file %}<img src="{{ t.photo_file.url }}" alt="{{ t.name }}">
+            {% elif t.photo_url %}<img src="{{ t.photo_url }}" alt="{{ t.name }}">
+            {% else %}{{ t.name|first|upper }}{% endif %}
+          </div>
+          <div><div class="tcf-name">{{ t.name }}</div><div class="tcf-loc"><i class="fas fa-map-marker-alt"></i>{{ t.location|default:"Worldwide" }}</div></div>
+        </div>
+      </a>
+      {% endfor %}
+    </div>
+
+    <div class="lm-wrap" id="lmWrap">
+      <div class="lm-count" id="lmCount"></div>
+      <div class="lm-bar"><div class="lm-fill" id="lmFill"></div></div>
+      <button class="btn btn--outline btn--pill" id="lmBtn" onclick="loadMore()" style="display:none;"><i class="fas fa-plus"></i>Load More Testimonies</button>
+    </div>
+
+    {% else %}
+    <div class="empty-state"><i class="fas fa-hands-praying"></i><h3>No Testimonies Yet</h3><p>Be the first to share what God has done for you!</p></div>
+    {% endif %}
+
+    <div class="share-cta reveal">
+      <h3>Has God done something amazing in your life?</h3>
+      <p>Your testimony could be the miracle story that gives someone else the courage to believe. Share it with our global community.</p>
+      {% if user.is_authenticated %}
+      <a href="/testimonies/submit/" class="btn btn--red btn--pill"><i class="fas fa-pen-nib"></i>Share Your Testimony</a>
+      {% else %}
+      <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap;">
+        <a href="/auth/register/?next=/testimonies/submit/" class="btn btn--red btn--pill"><i class="fas fa-user-plus"></i>Register to Share</a>
+        <a href="/auth/login/?next=/testimonies/submit/" class="btn btn--outline btn--pill"><i class="fas fa-sign-in-alt"></i>Sign In</a>
+      </div>
+      {% endif %}
+    </div>
+  </div>
+</section>
+{% endblock %}
+{% block extra_js %}
+<script>
+const PAGE = 10;
+let shown = PAGE, curCat = 'all';
+let allCards = [];
+
+function vis() { return curCat==='all' ? allCards : allCards.filter(c=>c.dataset.cat===curCat); }
+
+function updateVisible() {
+  const v = vis();
+  allCards.forEach(c => c.style.display = 'none');
+  v.slice(0, shown).forEach(c => {
+    c.style.display = '';
+    c.classList.add('in');
+  });
+  const t = v.length, s = Math.min(shown, t);
+  const lmCount = document.getElementById('lmCount');
+  const lmFill  = document.getElementById('lmFill');
+  const lmBtn   = document.getElementById('lmBtn');
+  if (lmCount) lmCount.textContent = t > 0 ? `Showing ${s} of ${t} testimonies` : 'No testimonies found';
+  if (lmFill)  lmFill.style.width  = (t > 0 ? (s / t) * 100 : 0) + '%';
+  if (lmBtn)   lmBtn.style.display = s < t ? '' : 'none';
+}
+
+function loadMore() { shown += PAGE; updateVisible(); }
+
+function filterCat(btn, cat) {
+  document.querySelectorAll('.th-cat-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  curCat = cat;
+  shown = PAGE;
+  updateVisible();
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  allCards = Array.from(document.querySelectorAll('.testi-card-full'));
+  updateVisible();
+});
+</script>
+{% endblock %}

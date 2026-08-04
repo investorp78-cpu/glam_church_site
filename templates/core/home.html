@@ -1,0 +1,502 @@
+{% extends 'core/base.html' %}
+{% block title %}{{ settings.church_name }} — {{ settings.tagline }}{% endblock %}
+
+{% block extra_css %}
+<style>
+/* ══ HERO ══════════════════════════════════════════════ */
+.hero{position:relative;height:100vh;min-height:600px;display:flex;align-items:center;justify-content:center;text-align:center;overflow:hidden;background:var(--bg);}
+.hero-bg{position:absolute;inset:0;background:center/cover no-repeat;animation:hZoom 20s ease-in-out infinite alternate;}
+@keyframes hZoom{0%{transform:scale(1.04)}100%{transform:scale(1.12)}}
+.hero-ov{position:absolute;inset:0;background:rgba(10,14,26,.55);}
+.hero-inner{position:relative;z-index:2;padding:0 6%;max-width:820px;}
+.hero-eyebrow{font-size:.72rem;font-weight:700;letter-spacing:.32em;text-transform:uppercase;color:var(--red2);margin-bottom:16px;opacity:0;animation:fadeUp .8s .3s var(--ease) forwards;}
+.hero-h1{font-size:clamp(2.4rem,7vw,5.5rem);font-weight:900;color:#fff;line-height:1;letter-spacing:-.02em;margin-bottom:20px;}
+.hero-h1 .line{display:block;overflow:hidden;}
+.hero-h1 .line span{display:block;opacity:0;transform:translateY(110%);animation:lineUp .85s var(--ease) forwards;}
+.hero-h1 .line:nth-child(1) span{animation-delay:.4s;}
+.hero-h1 .line:nth-child(2) span{animation-delay:.55s;}
+@keyframes lineUp{to{opacity:1;transform:translateY(0)}}
+@keyframes fadeUp{to{opacity:1;transform:translateY(0)}}
+.hero-sub{font-size:.95rem;color:rgba(255,255,255,.6);line-height:1.7;max-width:500px;margin:0 auto 32px;opacity:0;animation:fadeUp .8s .75s var(--ease) forwards;}
+.hero-ctas{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;opacity:0;animation:fadeUp .8s .9s var(--ease) forwards;}
+.hero-ctas .btn--pill{border-radius:50px;padding:14px 30px;font-size:.78rem;}
+.hero-scroll{position:absolute;bottom:28px;left:50%;transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;gap:5px;opacity:0;animation:fadeUp .8s 1.2s var(--ease) forwards;}
+.hero-scroll span{font-size:.58rem;letter-spacing:.2em;text-transform:uppercase;color:rgba(255,255,255,.4);}
+.hero-scroll-line{width:1px;height:32px;background:linear-gradient(to bottom,rgba(255,255,255,.4),transparent);animation:scrollLine 1.8s ease-in-out infinite;}
+@keyframes scrollLine{0%,100%{opacity:.4;transform:scaleY(1)}50%{opacity:1;transform:scaleY(.6)}}
+
+/* ══ QUICK STRIP ══════════════════════════════════════ */
+.qs-strip{display:grid;grid-template-columns:repeat(4,1fr);background:var(--bg2);border-bottom:1px solid var(--border);}
+.qs-item{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;padding:22px 12px;border-right:1px solid var(--border);text-decoration:none;transition:background .2s;position:relative;overflow:hidden;}
+.qs-item::after{content:'';position:absolute;bottom:0;left:50%;right:50%;height:2px;background:var(--red);transition:left .3s var(--ease),right .3s var(--ease);}
+.qs-item:hover{background:rgba(192,24,42,.06);}
+.qs-item:hover::after{left:0;right:0;}
+.qs-item:last-child{border-right:none;}
+.qs-icon{width:36px;height:36px;border-radius:50%;background:rgba(192,24,42,.1);border:1px solid rgba(192,24,42,.2);display:flex;align-items:center;justify-content:center;}
+.qs-icon i{color:var(--red2);font-size:.82rem;}
+.qs-lbl{font-size:.58rem;letter-spacing:.16em;text-transform:uppercase;color:var(--muted);font-weight:600;}
+.qs-title{font-size:.82rem;font-weight:700;color:var(--text);}
+
+/* ══ UPCOMING EVENTS — SMHOS card slider ══════════════ */
+.ev-section{padding:64px 0 0;background:var(--bg);}
+.ev-header{display:flex;align-items:flex-end;justify-content:space-between;flex-wrap:wrap;gap:12px;padding:0 5%;margin-bottom:28px;}
+.ev-header-left .eyebrow{margin-bottom:4px;}
+.ev-see-all{font-size:.72rem;font-weight:700;color:var(--red2);display:flex;align-items:center;gap:5px;transition:gap .2s;}
+.ev-see-all:hover{gap:9px;}
+/* Card slider */
+.ev-slider-wrap{position:relative;padding:0 5% 48px;}
+.ev-slider{display:flex;gap:16px;overflow-x:auto;scroll-snap-type:x mandatory;-webkit-overflow-scrolling:touch;scrollbar-width:none;padding-bottom:4px;}
+.ev-slider::-webkit-scrollbar{display:none;}
+.ev-card{flex:0 0 calc(100% - 0px);max-width:100%;scroll-snap-align:start;background:#fff;border-radius:var(--radius);overflow:hidden;box-shadow:0 4px 24px rgba(0,0,0,.15);position:relative;}
+@media(min-width:600px){.ev-card{flex:0 0 calc(50% - 8px);max-width:calc(50% - 8px);}}
+@media(min-width:960px){.ev-card{flex:0 0 calc(33.333% - 11px);max-width:calc(33.333% - 11px);}}
+.ev-card-img{width:100%;height:220px;overflow:hidden;background:#eee;position:relative;}
+.ev-card-img img{width:100%;height:100%;object-fit:cover;display:block;transition:transform .5s var(--ease);}
+.ev-card:hover .ev-card-img img{transform:scale(1.05);}
+.ev-card-img-ph{width:100%;height:100%;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#1a2238,#0f1525);}
+.ev-card-img-ph i{font-size:3rem;color:rgba(192,24,42,.3);}
+.ev-feat-tag{position:absolute;top:12px;left:12px;background:var(--red);color:#fff;font-size:.58rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;padding:4px 10px;border-radius:50px;}
+.ev-card-body{padding:18px 20px 20px;background:#fff;}
+.ev-card-title{font-size:.95rem;font-weight:700;color:#111;line-height:1.3;margin-bottom:10px;}
+.ev-card-meta{display:flex;gap:14px;flex-wrap:wrap;}
+.ev-card-meta-item{display:flex;align-items:center;gap:5px;font-size:.72rem;color:#555;}
+.ev-card-meta-item i{color:var(--red);font-size:.7rem;}
+.ev-reg-btn{display:inline-flex;align-items:center;gap:5px;margin-top:12px;font-size:.68rem;font-weight:700;color:var(--red);letter-spacing:.06em;text-transform:uppercase;}
+.ev-reg-btn i{font-size:.6rem;transition:transform .2s;}
+.ev-reg-btn:hover i{transform:translateX(4px);}
+/* Dots */
+.slider-dots{display:flex;justify-content:center;gap:6px;padding:0 0 40px;}
+.sdot{width:8px;height:8px;border-radius:50%;background:rgba(255,255,255,.2);cursor:pointer;transition:all .3s var(--ease);}
+.sdot.active{width:22px;border-radius:4px;background:var(--red);}
+
+/* ══ ABOUT / MANDATE ══════════════════════════════════ */
+.about-grid{display:grid;grid-template-columns:1fr 1fr;gap:60px;align-items:center;}
+.about-img-wrap{position:relative;}
+.about-img{border-radius:var(--radius);overflow:hidden;aspect-ratio:4/5;}
+.about-img img{width:100%;height:100%;object-fit:cover;display:block;transition:transform 1s var(--ease);}
+.about-img-wrap:hover .about-img img{transform:scale(1.04);}
+.about-badge{position:absolute;bottom:24px;left:-20px;background:var(--red);color:#fff;padding:16px 22px;border-radius:var(--radius-sm);box-shadow:var(--shadow-lg);}
+.about-badge strong{display:block;font-size:1.8rem;font-weight:900;line-height:1;}
+.about-badge span{font-size:.6rem;font-weight:600;letter-spacing:.12em;text-transform:uppercase;opacity:.85;}
+.about-verse{border-left:3px solid var(--red);padding:14px 18px;background:rgba(192,24,42,.06);border-radius:0 var(--radius-sm) var(--radius-sm) 0;margin:22px 0;}
+.about-verse p{font-size:.88rem;font-style:italic;color:var(--text);line-height:1.7;}
+.about-verse cite{display:block;margin-top:6px;font-size:.6rem;color:var(--red2);letter-spacing:.16em;text-transform:uppercase;font-weight:700;}
+
+/* ══ TESTIMONIES — SMHOS dot-slider ══════════════════ */
+.testi-section{padding:64px 0 0;}
+.testi-header{display:flex;align-items:flex-end;justify-content:space-between;flex-wrap:wrap;gap:12px;padding:0 5%;margin-bottom:28px;}
+.testi-slider-wrap{position:relative;padding:0 5% 48px;}
+.testi-slider{display:flex;gap:16px;overflow-x:auto;scroll-snap-type:x mandatory;-webkit-overflow-scrolling:touch;scrollbar-width:none;}
+.testi-slider::-webkit-scrollbar{display:none;}
+.testi-card{flex:0 0 100%;max-width:100%;scroll-snap-align:start;background:#fff;border-radius:var(--radius-lg);padding:26px 24px;box-shadow:0 2px 20px rgba(0,0,0,.12);display:flex;flex-direction:column;gap:14px;}
+@media(min-width:600px){.testi-card{flex:0 0 calc(50% - 8px);max-width:calc(50% - 8px);}}
+@media(min-width:960px){.testi-card{flex:0 0 calc(33.333% - 11px);max-width:calc(33.333% - 11px);}}
+.testi-card-top{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;}
+.testi-qq{color:var(--red2);font-size:2rem;line-height:1;font-weight:900;}
+.testi-cat-badge{background:rgba(192,24,42,.1);color:var(--red);font-size:.6rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;padding:4px 10px;border-radius:50px;}
+.testi-title{font-size:.95rem;font-weight:700;color:#111;line-height:1.35;}
+.testi-excerpt{font-size:.8rem;color:#555;line-height:1.7;display:-webkit-box;-webkit-line-clamp:4;-webkit-box-orient:vertical;overflow:hidden;}
+.testi-read-more{font-size:.7rem;font-weight:700;color:var(--red);letter-spacing:.06em;text-transform:uppercase;display:flex;align-items:center;gap:4px;transition:gap .2s;}
+.testi-read-more:hover{gap:8px;}
+.testi-author{display:flex;align-items:center;gap:12px;border-top:1px solid #f0f0f0;padding-top:14px;margin-top:auto;}
+.testi-av{width:42px;height:42px;border-radius:50%;background:rgba(192,24,42,.1);border:2px solid rgba(192,24,42,.2);display:flex;align-items:center;justify-content:center;font-size:.95rem;font-weight:700;color:var(--red);flex-shrink:0;overflow:hidden;}
+.testi-av img{width:100%;height:100%;object-fit:cover;display:block;}
+.testi-name{font-size:.82rem;font-weight:700;color:#111;}
+.testi-loc{font-size:.7rem;color:#888;display:flex;align-items:center;gap:4px;margin-top:1px;}
+.testi-loc i{font-size:.62rem;color:var(--red);}
+
+/* ══ MINISTRIES ══════════════════════════════════════ */
+.min-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:3px;margin-top:36px;}
+.min-card{background:var(--bg3);padding:28px 22px;border-radius:0;border-bottom:3px solid transparent;position:relative;overflow:hidden;transition:border-color .25s,background .25s;}
+.min-card:hover{border-bottom-color:var(--red);background:rgba(192,24,42,.05);}
+.min-card-bg{position:absolute;inset:0;background:center/cover no-repeat;opacity:0;transition:opacity .35s;}
+.min-card:hover .min-card-bg{opacity:.1;}
+.min-icon{width:44px;height:44px;border-radius:var(--radius-sm);background:rgba(192,24,42,.1);border:1px solid rgba(192,24,42,.2);display:flex;align-items:center;justify-content:center;margin-bottom:14px;transition:all .25s;}
+.min-card:hover .min-icon{background:rgba(192,24,42,.18);border-color:rgba(192,24,42,.4);}
+.min-icon i{color:var(--red2);font-size:.9rem;}
+.min-name{font-size:.92rem;font-weight:700;color:var(--text);margin-bottom:6px;}
+.min-desc{font-size:.76rem;color:var(--muted);line-height:1.65;}
+.min-meet{font-size:.62rem;color:var(--red2);font-weight:600;letter-spacing:.1em;text-transform:uppercase;margin-top:10px;display:flex;align-items:center;gap:5px;}
+
+/* ══ FLYERS ══════════════════════════════════════════ */
+.flyers-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:14px;margin-top:32px;}
+.flyer-card{border-radius:var(--radius);overflow:hidden;cursor:pointer;background:var(--bg3);transition:transform .3s var(--ease),box-shadow .3s;}
+.flyer-card:hover{transform:translateY(-5px);box-shadow:var(--shadow-lg);}
+.flyer-img{width:100%;aspect-ratio:3/4;overflow:hidden;background:var(--bg4);}
+.flyer-img img{width:100%;height:100%;object-fit:cover;display:block;transition:transform .5s var(--ease);}
+.flyer-card:hover .flyer-img img{transform:scale(1.05);}
+.flyer-body{padding:12px 14px 15px;}
+.flyer-title{font-size:.82rem;font-weight:700;color:var(--text);}
+.flyer-cap{font-size:.7rem;color:var(--muted);margin-top:3px;}
+@media(max-width:680px){
+  .flyers-grid{display:flex;overflow-x:auto;scroll-snap-type:x mandatory;-webkit-overflow-scrolling:touch;gap:12px;padding-bottom:8px;scrollbar-width:none;}
+  .flyers-grid::-webkit-scrollbar{display:none;}
+  .flyer-card{flex:0 0 72vw;max-width:260px;scroll-snap-align:start;}
+}
+/* Lightbox */
+.flyer-lb{display:none;position:fixed;inset:0;z-index:9500;background:rgba(0,0,0,.95);backdrop-filter:blur(10px);align-items:center;justify-content:center;padding:20px;}
+.flyer-lb.open{display:flex;}
+.flyer-lb img{max-width:90vw;max-height:88vh;object-fit:contain;border-radius:var(--radius-sm);animation:lbIn .3s var(--ease);}
+@keyframes lbIn{from{opacity:0;transform:scale(.93)}to{opacity:1;transform:scale(1)}}
+.flyer-lb-close{position:absolute;top:18px;right:20px;width:38px;height:38px;border-radius:50%;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);display:flex;align-items:center;justify-content:center;color:#fff;font-size:1rem;cursor:pointer;transition:background .2s;}
+.flyer-lb-close:hover{background:var(--red);}
+
+/* ══ GIVE BANNER ══════════════════════════════════════ */
+.give-banner{padding:80px 5%;text-align:center;position:relative;overflow:hidden;}
+.give-banner-bg{position:absolute;inset:0;background:center/cover no-repeat;}
+.give-banner-ov{position:absolute;inset:0;background:rgba(10,14,26,.9);}
+.give-banner-inner{position:relative;z-index:2;}
+.give-banner h2{font-size:clamp(1.8rem,4.5vw,3.5rem);font-weight:900;color:#fff;margin-bottom:14px;}
+.give-banner h2 em{font-style:normal;color:var(--gold2);}
+.give-banner p{font-size:.88rem;color:rgba(255,255,255,.55);max-width:480px;margin:0 auto 30px;line-height:1.75;}
+
+/* ══ MAP + CONTACT ════════════════════════════════════ */
+.map-grid{display:grid;grid-template-columns:1fr 340px;}
+.map-wrap{min-height:400px;position:relative;overflow:hidden;}
+.map-wrap iframe{position:absolute;inset:0;width:100%;height:100%;border:0;filter:grayscale(.5) brightness(.65);}
+.contact-panel{background:var(--red);padding:40px 32px;display:flex;flex-direction:column;justify-content:center;gap:20px;}
+.cp-h{font-size:1.6rem;font-weight:800;color:#fff;}
+.cp-row{display:flex;gap:12px;align-items:flex-start;}
+.cp-ic{width:32px;height:32px;background:rgba(0,0,0,.2);border-radius:var(--radius-sm);display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.cp-ic i{color:#fff;font-size:.78rem;}
+.cp-d label{font-size:.58rem;letter-spacing:.16em;text-transform:uppercase;color:rgba(255,255,255,.6);display:block;font-weight:700;margin-bottom:2px;}
+.cp-d a,.cp-d p{font-size:.82rem;color:#fff;line-height:1.5;}
+.cp-d a:hover{opacity:.8;}
+
+/* ══ REGISTER TOAST ══════════════════════════════════ */
+/* (defined in base.html) */
+
+/* ══ RESPONSIVE ══════════════════════════════════════ */
+@media(max-width:900px){
+  .about-grid{grid-template-columns:1fr;gap:36px;}
+  .about-badge{left:0;}
+  .min-grid{grid-template-columns:repeat(2,1fr);}
+  .map-grid{grid-template-columns:1fr;}
+}
+@media(max-width:600px){
+  .min-grid{grid-template-columns:1fr 1fr;}
+  .qs-strip{grid-template-columns:repeat(2,1fr);}
+}
+@media(max-width:420px){
+  .min-grid{grid-template-columns:1fr;}
+}
+</style>
+{% endblock %}
+
+{% block content %}
+
+<!-- Register Toast -->
+<div class="reg-toast" id="regToast">
+  <div class="reg-toast-icon"><i class="fas fa-user-plus"></i></div>
+  <div class="reg-toast-text">
+    <strong>Join our community!</strong>
+    <p>Register free to get event alerts, submit testimonies &amp; more.</p>
+  </div>
+  <a href="/auth/register/" class="reg-toast-btn">Register</a>
+  <button class="reg-toast-x" onclick="closeRegToast()" aria-label="Close"><i class="fas fa-times"></i></button>
+</div>
+
+<!-- ══ HERO ══════════════════════════════════════════ -->
+<section class="hero">
+  <div class="hero-bg" style="{% if bg_hero %}background-image:url('{{ bg_hero }}');{% else %}background:linear-gradient(135deg,var(--bg2),var(--bg));{% endif %}"></div>
+  <div class="hero-ov"></div>
+  <div class="hero-inner">
+    <div class="hero-eyebrow">WELCOME TO</div>
+    <h1 class="hero-h1">
+      <span class="line"><span>{{ settings.church_name }}</span></span>
+    </h1>
+    <p class="hero-sub">{{ settings.tagline }}</p>
+    <div class="hero-ctas">
+      <a href="/live/" class="btn btn--red btn--pill"><i class="fas fa-video"></i>Livestream</a>
+      <a href="/give/" class="btn btn--outline btn--pill">Give Online</a>
+    </div>
+  </div>
+  <div class="hero-scroll">
+    <span>Scroll</span>
+    <div class="hero-scroll-line"></div>
+  </div>
+</section>
+
+<!-- ══ QUICK ACCESS ══════════════════════════════════ -->
+<div class="qs-strip">
+  <a href="/new-visitor/" class="qs-item"><div class="qs-icon"><i class="fas fa-door-open"></i></div><span class="qs-lbl">First Time?</span><span class="qs-title">Plan Your Visit</span></a>
+  <a href="/sermons/" class="qs-item"><div class="qs-icon"><i class="fas fa-bible"></i></div><span class="qs-lbl">The Word</span><span class="qs-title">Sermons</span></a>
+  <a href="/events/" class="qs-item"><div class="qs-icon"><i class="fas fa-calendar-alt"></i></div><span class="qs-lbl">What's On</span><span class="qs-title">Events</span></a>
+  <a href="/give/" class="qs-item"><div class="qs-icon"><i class="fas fa-heart"></i></div><span class="qs-lbl">Partner</span><span class="qs-title">Give Online</span></a>
+</div>
+
+<!-- ══ UPCOMING EVENTS SLIDER (SMHOS style) ══════════ -->
+{% if upcoming_events %}
+<section class="ev-section reveal">
+  <div class="ev-header">
+    <div class="ev-header-left">
+      <div class="eyebrow">UPCOMING EVENTS</div>
+      <h2 class="sec-title">What's <em>Coming</em></h2>
+    </div>
+    <a href="/events/" class="ev-see-all">See all <i class="fas fa-chevron-right"></i></a>
+  </div>
+  <div class="ev-slider-wrap">
+    <div class="ev-slider" id="evSlider" onscroll="updateDots('evSlider','evDots')">
+      {% for event in upcoming_events %}
+      <div class="ev-card">
+        <div class="ev-card-img">
+          {% if event.image_file %}<img src="{{ event.image_file.url }}" alt="{{ event.title }}" loading="lazy">
+          {% elif event.image_url %}<img src="{{ event.image_url }}" alt="{{ event.title }}" loading="lazy">
+          {% else %}<div class="ev-card-img-ph"><i class="fas fa-calendar-star"></i></div>{% endif %}
+          {% if event.is_featured %}<div class="ev-feat-tag"><i class="fas fa-star" style="margin-right:3px;"></i>Featured</div>{% endif %}
+        </div>
+        <div class="ev-card-body">
+          <div class="ev-card-title">{{ event.title }}</div>
+          <div class="ev-card-meta">
+            <div class="ev-card-meta-item"><i class="fas fa-calendar-alt"></i>{{ event.date|date:"j M Y" }}</div>
+            {% if event.time %}<div class="ev-card-meta-item"><i class="fas fa-clock"></i>{{ event.time|time:"g:i A" }}</div>{% endif %}
+            <div class="ev-card-meta-item"><i class="fas fa-map-marker-alt"></i>{{ event.location|truncatechars:22 }}</div>
+          </div>
+          {% if event.registration_link %}
+          <a href="{{ event.registration_link }}" target="_blank" class="ev-reg-btn">Register Now <i class="fas fa-arrow-right"></i></a>
+          {% endif %}
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+    <!-- Dot indicators -->
+    <div class="slider-dots" id="evDots">
+      {% for event in upcoming_events %}
+      <div class="sdot {% if forloop.first %}active{% endif %}" onclick="scrollToSlide('evSlider','evDots',{{ forloop.counter0 }})"></div>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+{% endif %}
+
+<!-- ══ ABOUT / MANDATE ════════════════════════════════ -->
+<section class="section section--alt">
+  <div class="wrap">
+    <div class="about-grid">
+      <div class="about-img-wrap reveal fl">
+        <div class="about-img">
+          {% if bg_about %}<img src="{{ bg_about }}" alt="About {{ settings.church_name }}">
+          {% else %}<img src="https://images.unsplash.com/photo-1604580864964-0462f5d5b1a8?w=800&q=80" alt="Church">{% endif %}
+        </div>
+        <div class="about-badge"><strong>{{ settings.founding_year }}</strong><span>Founded</span></div>
+      </div>
+      <div class="reveal fr">
+        <div class="eyebrow">Who We Are</div>
+        <h2 class="sec-title" style="margin-bottom:12px;">Our <em>Mandate</em></h2>
+        <div class="about-verse">
+          <p>"{{ settings.hero_bible_text }}"</p>
+          <cite>— {{ settings.hero_bible_verse }}</cite>
+        </div>
+        <p class="sec-sub" style="max-width:none;">{{ settings.mission_statement }}</p>
+        <div style="margin-top:28px;display:flex;gap:12px;flex-wrap:wrap;">
+          <a href="/about/" class="btn btn--red"><i class="fas fa-arrow-right"></i>Learn More</a>
+          <a href="/new-visitor/" class="btn btn--outline">Plan Your Visit</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══ TESTIMONIES SLIDER (SMHOS style) ══════════════ -->
+{% if testimonies %}
+<section class="testi-section reveal">
+  <div class="testi-header">
+    <div>
+      <div class="eyebrow">TESTIMONIES</div>
+      <h2 class="sec-title">What God is <em>Doing</em></h2>
+    </div>
+    <a href="/testimonies/" class="ev-see-all">See all <i class="fas fa-chevron-right"></i></a>
+  </div>
+  <div class="testi-slider-wrap">
+    <div class="testi-slider" id="testiSlider" onscroll="updateDots('testiSlider','testiDots')">
+      {% for t in testimonies %}
+      <div class="testi-card">
+        <div class="testi-card-top">
+          <div class="testi-qq">"</div>
+          <div class="testi-cat-badge">{{ t.category }}</div>
+        </div>
+        <div class="testi-excerpt">{{ t.testimony }}</div>
+        <a href="/testimony/{{ t.pk }}/" class="testi-read-more">READ MORE <i class="fas fa-arrow-down"></i></a>
+        <div class="testi-author">
+          <div class="testi-av">
+            {% if t.photo_file %}<img src="{{ t.photo_file.url }}" alt="{{ t.name }}">
+            {% elif t.photo_url %}<img src="{{ t.photo_url }}" alt="{{ t.name }}">
+            {% else %}{{ t.name|first|upper }}{% endif %}
+          </div>
+          <div>
+            <div class="testi-name">{{ t.name }}</div>
+            <div class="testi-loc"><i class="fas fa-map-marker-alt"></i>{{ t.location|default:"Worldwide" }}</div>
+          </div>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+    <div class="slider-dots" id="testiDots">
+      {% for t in testimonies %}
+      <div class="sdot {% if forloop.first %}active{% endif %}" onclick="scrollToSlide('testiSlider','testiDots',{{ forloop.counter0 }})"></div>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+{% endif %}
+
+<!-- ══ MINISTRIES ════════════════════════════════════ -->
+{% if ministries %}
+<section class="section section--alt">
+  <div class="wrap">
+    <div style="display:flex;justify-content:space-between;align-items:flex-end;flex-wrap:wrap;gap:12px;margin-bottom:4px;" class="reveal">
+      <div><div class="eyebrow">GET INVOLVED</div><h2 class="sec-title">Our <em>Ministries</em></h2></div>
+      <a href="/about/#ministries" class="ev-see-all">See all <i class="fas fa-chevron-right"></i></a>
+    </div>
+    <div class="min-grid">
+      {% for ministry in ministries %}
+      <div class="min-card reveal d{{ forloop.counter }}">
+        {% if ministry.bg_file %}<div class="min-card-bg" style="background-image:url('{{ ministry.bg_file.url }}');"></div>
+        {% elif ministry.bg_url %}<div class="min-card-bg" style="background-image:url('{{ ministry.bg_url }}');"></div>{% endif %}
+        <div class="min-icon"><i class="{{ ministry.icon_class }}"></i></div>
+        <div class="min-name">{{ ministry.name }}</div>
+        <div class="min-desc">{{ ministry.description|truncatechars:85 }}</div>
+        {% if ministry.meeting_time %}<div class="min-meet"><i class="fas fa-clock"></i>{{ ministry.meeting_time }}</div>{% endif %}
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+{% endif %}
+
+<!-- ══ FLYERS / POSTERS ════════════════════════════════ -->
+{% if flyers %}
+<section class="section">
+  <div class="wrap">
+    <div style="display:flex;justify-content:space-between;align-items:flex-end;flex-wrap:wrap;gap:12px;margin-bottom:4px;" class="reveal">
+      <div><div class="eyebrow">NOTICE BOARD</div><h2 class="sec-title">Church <em>Flyers</em></h2></div>
+      <a href="/events/" class="ev-see-all">All Events <i class="fas fa-chevron-right"></i></a>
+    </div>
+    <div class="flyers-grid">
+      {% for flyer in flyers %}
+      <div class="flyer-card reveal d{{ forloop.counter }}" onclick="openFlyer('{{ flyer.get_image }}','{{ flyer.title }}','{{ flyer.link_url }}')">
+        <div class="flyer-img">
+          {% if flyer.image_file %}<img src="{{ flyer.image_file.url }}" alt="{{ flyer.title }}" loading="lazy">
+          {% elif flyer.image_url %}<img src="{{ flyer.image_url }}" alt="{{ flyer.title }}" loading="lazy">
+          {% else %}<div style="width:100%;height:100%;min-height:200px;display:flex;align-items:center;justify-content:center;background:var(--bg3);"><i class="fas fa-image" style="font-size:3rem;color:rgba(192,24,42,.2);"></i></div>{% endif %}
+        </div>
+        <div class="flyer-body">
+          <div class="flyer-title">{{ flyer.title }}</div>
+          {% if flyer.caption %}<div class="flyer-cap">{{ flyer.caption|truncatechars:55 }}</div>{% endif %}
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+<div class="flyer-lb" id="flyerLb" onclick="closeFlyerLb(event)">
+  <button class="flyer-lb-close" onclick="document.getElementById('flyerLb').classList.remove('open');document.body.style.overflow='';"><i class="fas fa-times"></i></button>
+  <img id="lbImg" src="" alt="">
+</div>
+{% endif %}
+
+<!-- ══ GIVE BANNER ════════════════════════════════════ -->
+<div class="give-banner">
+  {% if bg_give %}<div class="give-banner-bg" style="background-image:url('{{ bg_give }}');"></div><div class="give-banner-ov"></div>{% endif %}
+  <div class="give-banner-inner reveal">
+    <div class="eyebrow" style="justify-content:center;text-align:center;margin-bottom:10px;">PARTNER WITH US</div>
+    <h2>Your Giving <em>Changes Lives</em></h2>
+    <p>"Give, and it will be given to you. A good measure, pressed down, shaken together and running over, will be poured into your lap." — Luke 6:38</p>
+    <div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap;">
+      <a href="/give/" class="btn btn--gold btn--pill"><i class="fas fa-heart"></i>Give Online</a>
+      <a href="/new-visitor/" class="btn btn--ghost btn--pill"><i class="fas fa-church"></i>Join Us Sunday</a>
+    </div>
+  </div>
+</div>
+
+<!-- ══ MAP + CONTACT ══════════════════════════════════ -->
+<div class="map-grid">
+  <div class="map-wrap">{{ settings.google_maps_embed|safe }}</div>
+  <div class="contact-panel">
+    <div class="cp-h">Find Us</div>
+    <div class="cp-row"><div class="cp-ic"><i class="fas fa-map-marker-alt"></i></div><div class="cp-d"><label>Address</label><p>{{ settings.address }}</p></div></div>
+    <div class="cp-row"><div class="cp-ic"><i class="fas fa-phone"></i></div><div class="cp-d"><label>Phone</label><a href="tel:{{ settings.phone_primary }}">{{ settings.phone_primary }}</a></div></div>
+    <div class="cp-row"><div class="cp-ic"><i class="fab fa-whatsapp"></i></div><div class="cp-d"><label>WhatsApp</label><a href="https://wa.me/{{ settings.whatsapp|cut:'+' }}" target="_blank">{{ settings.whatsapp }}</a></div></div>
+    <div class="cp-row"><div class="cp-ic"><i class="fas fa-envelope"></i></div><div class="cp-d"><label>Email</label><a href="mailto:{{ settings.email }}">{{ settings.email }}</a></div></div>
+  </div>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+/* ── Auto dot sliders ── */
+const sliderStates = {};
+
+function getCardWidth(slider) {
+  if (!slider.children.length) return 0;
+  const gap = parseInt(getComputedStyle(slider).gap) || 16;
+  return slider.children[0].offsetWidth + gap;
+}
+
+function updateDots(sliderId, dotsId) {
+  const slider = document.getElementById(sliderId);
+  const dots   = document.getElementById(dotsId);
+  if (!slider || !dots) return;
+  const cardW = getCardWidth(slider);
+  if (!cardW) return;
+  const idx = Math.round(slider.scrollLeft / cardW);
+  dots.querySelectorAll('.sdot').forEach((d, i) => d.classList.toggle('active', i === idx));
+  if (sliderStates[sliderId]) sliderStates[sliderId].current = idx;
+}
+
+function scrollToSlide(sliderId, dotsId, idx) {
+  const slider = document.getElementById(sliderId);
+  if (!slider || !slider.children.length) return;
+  const cardW  = getCardWidth(slider);
+  const total  = slider.children.length;
+  const target = ((idx % total) + total) % total;
+  slider.scrollTo({ left: cardW * target, behavior: 'smooth' });
+  if (sliderStates[sliderId]) sliderStates[sliderId].current = target;
+  updateDots(sliderId, dotsId);
+}
+
+function initAutoSlider(sliderId, dotsId, interval) {
+  const slider = document.getElementById(sliderId);
+  if (!slider || slider.children.length <= 1) return;
+  sliderStates[sliderId] = { current: 0, paused: false };
+
+  // Pause on touch/mouse
+  slider.addEventListener('mouseenter', () => { sliderStates[sliderId].paused = true; });
+  slider.addEventListener('mouseleave', () => { sliderStates[sliderId].paused = false; });
+  slider.addEventListener('touchstart',  () => { sliderStates[sliderId].paused = true; },  { passive: true });
+  slider.addEventListener('touchend',    () => { setTimeout(() => { sliderStates[sliderId].paused = false; }, 2000); }, { passive: true });
+  slider.addEventListener('scroll', () => updateDots(sliderId, dotsId), { passive: true });
+
+  setInterval(() => {
+    if (sliderStates[sliderId].paused) return;
+    const total = slider.children.length;
+    const next  = (sliderStates[sliderId].current + 1) % total;
+    scrollToSlide(sliderId, dotsId, next);
+  }, interval);
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  initAutoSlider('evSlider',    'evDots',    4000);  // events: 4s
+  initAutoSlider('testiSlider', 'testiDots', 5500);  // testimonies: 5.5s
+});
+
+/* ── Flyer lightbox ── */
+function openFlyer(img, title, link) {
+  if (!img) return;
+  document.getElementById('lbImg').src = img;
+  document.getElementById('flyerLb').classList.add('open');
+  document.body.style.overflow = 'hidden';
+  document.getElementById('flyerLb').dataset.link = link || '';
+}
+function closeFlyerLb(e) {
+  if (e.target === document.getElementById('flyerLb')) {
+    document.getElementById('flyerLb').classList.remove('open');
+    document.body.style.overflow = '';
+  }
+}
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') { document.getElementById('flyerLb')?.classList.remove('open'); document.body.style.overflow = ''; }
+});
+</script>
+{% endblock %}

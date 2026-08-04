@@ -1,0 +1,85 @@
+{% extends 'core/base.html' %}
+{% block title %}Join Us — {{ settings.church_name }}{% endblock %}
+{% block extra_css %}
+<style>
+.auth-shell{min-height:100vh;display:grid;grid-template-columns:1fr 1fr;}
+.auth-panel{display:flex;flex-direction:column;justify-content:center;padding:70px 8%;}
+.auth-left{background:linear-gradient(160deg,var(--n950) 0%,var(--n800) 55%,var(--n950) 100%);position:relative;overflow:hidden;}
+.auth-left-bg{position:absolute;inset:0;background:radial-gradient(ellipse 70% 70% at 60% 40%,rgba(200,152,42,.1) 0%,transparent 65%);}
+.auth-left-dots{position:absolute;inset:0;background-image:radial-gradient(circle,rgba(200,152,42,.055) 1px,transparent 1px);background-size:30px 30px;}
+.auth-left-inner{position:relative;z-index:2;}
+.auth-ring{width:68px;height:68px;border:1.5px solid rgba(200,152,42,.3);display:flex;align-items:center;justify-content:center;margin-bottom:24px;}
+.auth-ring i{color:var(--accent);font-size:1.6rem;}
+.auth-left h1{font-family:'Cormorant Garamond',serif;font-size:clamp(2rem,4vw,3rem);font-weight:300;color:var(--text);line-height:1.08;margin-bottom:14px;}
+.auth-left h1 em{font-style:italic;background:linear-gradient(135deg,var(--g400),var(--g600));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+.auth-left p{font-size:.86rem;color:var(--muted);line-height:1.78;margin-bottom:24px;}
+.auth-verse{border-left:2px solid var(--g600);padding:14px 18px;background:rgba(200,152,42,.04);margin-bottom:22px;}
+.auth-verse p{font-family:'Cormorant Garamond',serif;font-style:italic;font-size:.95rem;color:var(--text2);line-height:1.65;}
+.auth-verse cite{display:block;margin-top:6px;font-size:.58rem;color:var(--g600);letter-spacing:.16em;text-transform:uppercase;font-weight:700;}
+.auth-perks{display:flex;flex-direction:column;gap:10px;}
+.auth-perk{display:flex;align-items:center;gap:10px;font-size:.8rem;color:var(--muted);}
+.auth-perk i{color:var(--accent);width:16px;font-size:.85rem;}
+.auth-right{background:var(--bg2);overflow-y:auto;}
+.auth-right h2{font-family:'Cormorant Garamond',serif;font-size:1.9rem;font-weight:400;color:var(--text);margin-bottom:6px;}
+.auth-right .sub{font-size:.8rem;color:var(--muted);margin-bottom:26px;}
+.auth-right .sub a{color:var(--accent);font-weight:700;}
+.auth-error{background:rgba(200,152,42,.07);border:1px solid var(--border2);padding:11px 14px;margin-bottom:14px;font-size:.8rem;color:var(--accent);display:flex;align-items:center;gap:9px;}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+@media(max-width:860px){.auth-shell{grid-template-columns:1fr;}.auth-left{display:none;}.auth-panel{padding:60px 6%;}}
+@media(max-width:480px){.form-row{grid-template-columns:1fr;}}
+</style>
+{% endblock %}
+{% block content %}
+<div class="auth-shell">
+  <div class="auth-panel auth-left">
+    <div class="auth-left-bg"></div><div class="auth-left-dots"></div>
+    <div class="auth-left-inner">
+      <div class="auth-ring"><i class="fas fa-church"></i></div>
+      <h1>Join the <em>Family</em> of Faith</h1>
+      <p>Become a registered member of {{ settings.church_name }} and receive personalised updates, event notifications, and access to your own church dashboard.</p>
+      <div class="auth-verse">
+        <p>"For we are all one body in Christ, and individually members of one another."</p>
+        <cite>— Romans 12:5</cite>
+      </div>
+      <div class="auth-perks">
+        <div class="auth-perk"><i class="fas fa-bell"></i>Event and announcement notifications</div>
+        <div class="auth-perk"><i class="fas fa-calendar-check"></i>Personalised events and sermons dashboard</div>
+        <div class="auth-perk"><i class="fas fa-hands-praying"></i>Submit testimonies and prayer requests</div>
+        <div class="auth-perk"><i class="fas fa-shield-alt"></i>Secure, private, always free</div>
+      </div>
+    </div>
+  </div>
+  <div class="auth-panel auth-right">
+    <h2>Create Your Account</h2>
+    <p class="sub">Already a member? <a href="/auth/login/">Sign in here</a></p>
+    {% if error %}<div class="auth-error"><i class="fas fa-circle-exclamation"></i>{{ error }}</div>{% endif %}
+    <form method="POST" enctype="multipart/form-data">
+      {% csrf_token %}
+      <div class="form-row">
+        <div class="fg"><label>First Name *</label><input type="text" name="first_name" required placeholder="Ngozi" value="{{ request.POST.first_name|default:'' }}"></div>
+        <div class="fg"><label>Last Name *</label><input type="text" name="last_name" required placeholder="Obi" value="{{ request.POST.last_name|default:'' }}"></div>
+      </div>
+      <div class="fg"><label>Email Address *</label><input type="email" name="email" required placeholder="your@email.com" value="{{ request.POST.email|default:'' }}"></div>
+      <div class="fg"><label>Phone Number</label><input type="tel" name="phone" placeholder="+234 800 000 0000" value="{{ request.POST.phone|default:'' }}"></div>
+      <div class="form-row">
+        <div class="fg"><label>Gender</label><select name="gender"><option value="">Prefer not to say</option><option value="M" {% if request.POST.gender == 'M' %}selected{% endif %}>Male</option><option value="F" {% if request.POST.gender == 'F' %}selected{% endif %}>Female</option></select></div>
+        <div class="fg"><label>Ministry Interest</label><select name="ministry_interest"><option value="">None yet</option>{% for m in ministries %}<option value="{{ m.name }}" {% if request.POST.ministry_interest == m.name %}selected{% endif %}>{{ m.name }}</option>{% endfor %}</select></div>
+      </div>
+      <div class="form-row">
+        <div class="fg"><label>Password *</label><input type="password" name="password" required placeholder="Min. 8 characters"></div>
+        <div class="fg"><label>Confirm Password *</label><input type="password" name="password2" required placeholder="Repeat password"></div>
+      </div>
+      <div style="background:rgba(255,255,255,.03);border:1px solid var(--border);padding:12px 14px;margin-bottom:16px;">
+        <label style="display:flex;align-items:flex-start;gap:10px;cursor:pointer;font-size:.78rem;color:var(--muted);text-transform:none;letter-spacing:0;">
+          <input type="checkbox" name="agree" required style="width:auto;margin-top:2px;accent-color:var(--g600);">
+          I agree to receive updates from {{ settings.church_name }}. I can unsubscribe anytime from my dashboard.
+        </label>
+      </div>
+      <button type="submit" class="btn btn--gold" style="width:100%;justify-content:center;padding:14px;font-size:.82rem;"><i class="fas fa-user-plus"></i>Create My Account</button>
+    </form>
+    <div style="text-align:center;margin-top:18px;font-size:.78rem;color:var(--muted);">
+      <a href="/new-visitor/" style="color:var(--accent);">Visiting for the first time? Learn what to expect →</a>
+    </div>
+  </div>
+</div>
+{% endblock %}

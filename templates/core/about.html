@@ -1,0 +1,179 @@
+{% extends 'core/base.html' %}
+{% block title %}About Us — {{ settings.church_name }}{% endblock %}
+{% block extra_css %}
+<style>
+.ab-mission{display:grid;grid-template-columns:1fr 1fr;gap:3px;margin-top:44px;}
+.ab-block{background:var(--bg3);padding:42px 36px;border-bottom:2px solid transparent;transition:border-color .25s var(--ease),background .25s var(--ease);}
+.ab-block:hover{border-bottom-color:var(--g600);background:rgba(200,152,42,.04);}
+.ab-block-icon{width:44px;height:44px;border:1px solid var(--border2);border-radius:50%;display:flex;align-items:center;justify-content:center;margin-bottom:18px;transition:border-color .25s,background .25s;}
+.ab-block:hover .ab-block-icon{border-color:var(--g600);background:rgba(200,152,42,.07);}
+.ab-block-icon i{color:var(--accent);font-size:.9rem;}
+.ab-block h3{font-family:'Cormorant Garamond',serif;font-size:1.4rem;font-weight:500;color:var(--text);margin-bottom:10px;}
+.ab-block p{font-size:.83rem;color:var(--muted);line-height:1.78;}
+/* Beliefs */
+.beliefs-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:3px;margin-top:36px;}
+.belief-card{background:var(--bg3);padding:30px 26px;position:relative;overflow:hidden;}
+.belief-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,rgba(200,152,42,.3),transparent);}
+.belief-n{font-family:'Cormorant Garamond',serif;font-size:4rem;font-weight:300;line-height:1;color:rgba(200,152,42,.08);position:absolute;top:10px;right:16px;}
+.belief-title{font-family:'Cormorant Garamond',serif;font-size:1.1rem;font-weight:500;color:var(--text);margin-bottom:8px;}
+.belief-text{font-size:.78rem;color:var(--muted);line-height:1.7;}
+/* Leadership */
+.lead-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:3px;}
+.lead-card{position:relative;overflow:hidden;background:var(--bg3);}
+.lead-img{width:100%;aspect-ratio:3/4;overflow:hidden;background:var(--bg4);}
+.lead-img img{width:100%;height:100%;object-fit:cover;display:block;transition:transform .7s var(--ease);}
+.lead-card:hover .lead-img img{transform:scale(1.05);}
+.lead-body{padding:22px 22px 24px;border-top:2px solid transparent;transition:border-color .25s var(--ease);}
+.lead-card:hover .lead-body{border-top-color:var(--g600);}
+.lead-title{font-size:.58rem;letter-spacing:.2em;text-transform:uppercase;color:var(--accent);font-weight:700;margin-bottom:5px;}
+.lead-name{font-family:'Cormorant Garamond',serif;font-size:1.2rem;font-weight:500;color:var(--text);margin-bottom:8px;}
+.lead-bio{font-size:.78rem;color:var(--muted);line-height:1.65;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;}
+/* Ministries */
+.min-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:2px;}
+.min-card{background:var(--bg3);padding:30px 24px;border-bottom:2px solid transparent;position:relative;overflow:hidden;transition:border-color .25s var(--ease),background .25s var(--ease);}
+.min-card:hover{border-bottom-color:var(--g600);background:rgba(200,152,42,.04);}
+.min-card-bg{position:absolute;inset:0;background:center/cover no-repeat;opacity:0;transition:opacity .35s var(--ease);}
+.min-card:hover .min-card-bg{opacity:.1;}
+.min-ring{width:44px;height:44px;border:1px solid var(--border2);border-radius:50%;display:flex;align-items:center;justify-content:center;margin-bottom:14px;transition:border-color .25s,background .25s;}
+.min-card:hover .min-ring{border-color:var(--g600);background:rgba(200,152,42,.07);}
+.min-ring i{color:var(--accent);font-size:.88rem;}
+.min-name{font-family:'Cormorant Garamond',serif;font-size:1.05rem;font-weight:500;color:var(--text);margin-bottom:6px;}
+.min-desc{font-size:.76rem;color:var(--muted);line-height:1.65;}
+.min-meet{font-size:.58rem;letter-spacing:.12em;text-transform:uppercase;color:var(--accent);font-weight:700;margin-top:10px;display:flex;align-items:center;gap:5px;}
+@media(max-width:900px){.ab-mission{grid-template-columns:1fr;}.beliefs-grid{grid-template-columns:1fr 1fr;}.lead-grid{grid-template-columns:1fr 1fr;}.min-grid{grid-template-columns:repeat(2,1fr);}}
+@media(max-width:560px){.beliefs-grid{grid-template-columns:1fr;}.lead-grid{grid-template-columns:1fr;}.min-grid{grid-template-columns:1fr;}}
+</style>
+{% endblock %}
+{% block content %}
+<div class="pg-hero">
+  <div class="pg-hero-inner">
+    <div class="breadcrumb"><a href="/">Home</a><i class="fas fa-chevron-right"></i><span>About Us</span></div>
+    <h1>About <em>{{ settings.church_name }}</em></h1>
+    <p>{{ settings.tagline }} — a church where every soul finds purpose and every life is transformed.</p>
+  </div>
+</div>
+
+<!-- Mission & Vision -->
+<section class="section section--dark">
+  <div class="wrap">
+    <div class="reveal"><div class="eyebrow">Who We Are</div><h2 class="sec-title">Our <em>Mission &amp; Vision</em></h2></div>
+    <div class="ab-mission">
+      <div class="ab-block reveal d1">
+        <div class="ab-block-icon"><i class="fas fa-bullseye"></i></div>
+        <h3>Our Mission</h3>
+        <p>{{ settings.mission_statement }}</p>
+      </div>
+      <div class="ab-block reveal d2">
+        <div class="ab-block-icon"><i class="fas fa-eye"></i></div>
+        <h3>Our Vision</h3>
+        <p>{{ settings.vision_statement }}</p>
+      </div>
+      <div class="ab-block reveal d3">
+        <div class="ab-block-icon"><i class="fas fa-heart"></i></div>
+        <h3>Our Values</h3>
+        <p>Faith, Excellence, Integrity, Compassion, and an uncompromising commitment to the Word of God — these are the pillars upon which we stand and build.</p>
+      </div>
+      <div class="ab-block reveal d4">
+        <div class="ab-block-icon"><i class="fas fa-history"></i></div>
+        <h3>Our History</h3>
+        <p>Founded in {{ settings.founding_year }}, {{ settings.church_name }} began as a small fellowship of passionate believers. Today, by God's grace, we are a growing family of thousands impacting our city and the nations.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Core Beliefs -->
+<section class="section bg-wrap">
+  {% if bg_about %}<div class="bg-img" style="background-image:url('{{ bg_about }}');"></div><div class="bg-ov bg-ov--deep"></div>{% endif %}
+  <div class="wrap">
+    <div class="reveal" style="text-align:center;margin-bottom:44px;">
+      <div class="eyebrow eyebrow--center" style="justify-content:center;"><i class="fas fa-bible" style="margin-right:8px;"></i>What We Believe</div>
+      <h2 class="sec-title">Our Core <em>Beliefs</em></h2>
+      <div class="gold-rule gold-rule--c"></div>
+    </div>
+    <div class="beliefs-grid">
+      {% for belief in "12345678910"|make_list %}
+      {% if forloop.counter == 1 %}
+      <div class="belief-card reveal d1"><div class="belief-n">01</div><div class="belief-title">The Holy Scripture</div><div class="belief-text">We believe the Bible is the inspired, infallible, authoritative Word of God — the supreme standard for faith and practice.</div></div>
+      {% elif forloop.counter == 2 %}
+      <div class="belief-card reveal d2"><div class="belief-n">02</div><div class="belief-title">The Trinity</div><div class="belief-text">We believe in one God, eternally existing in three persons: Father, Son, and Holy Spirit — co-equal and co-eternal.</div></div>
+      {% elif forloop.counter == 3 %}
+      <div class="belief-card reveal d3"><div class="belief-n">03</div><div class="belief-title">Salvation by Grace</div><div class="belief-text">Salvation is a gift of God's grace, received through faith in Jesus Christ — not by works, but by His atoning sacrifice alone.</div></div>
+      {% elif forloop.counter == 4 %}
+      <div class="belief-card reveal d4"><div class="belief-n">04</div><div class="belief-title">The Holy Spirit</div><div class="belief-text">We believe in the present-day ministry of the Holy Spirit, including the gifts of the Spirit active in the believer's life today.</div></div>
+      {% elif forloop.counter == 5 %}
+      <div class="belief-card reveal d5"><div class="belief-n">05</div><div class="belief-title">Divine Healing</div><div class="belief-text">God heals the sick today as a sign of His Kingdom. Healing was provided in the atonement of Christ for all who believe.</div></div>
+      {% elif forloop.counter == 6 %}
+      <div class="belief-card reveal d6"><div class="belief-n">06</div><div class="belief-title">The Second Coming</div><div class="belief-text">We believe in the personal, imminent, bodily return of Jesus Christ. This blessed hope shapes everything we do and how we live.</div></div>
+      {% endif %}
+      {% endfor %}
+    </div>
+  </div>
+</section>
+
+<!-- Leadership -->
+{% if leadership %}
+<section class="section section--dark">
+  <div class="wrap">
+    <div style="margin-bottom:40px;" class="reveal">
+      <div class="eyebrow"><i class="fas fa-users" style="margin-right:6px;"></i>Our Team</div>
+      <h2 class="sec-title">Meet Our <em>Leadership</em></h2>
+    </div>
+    <div class="lead-grid">
+      {% for leader in leadership %}
+      <div class="lead-card reveal d{{ forloop.counter }}">
+        <div class="lead-img">
+          {% if leader.photo_file %}<img src="{{ leader.photo_file.url }}" alt="{{ leader.name }}">
+          {% elif leader.photo_url %}<img src="{{ leader.photo_url }}" alt="{{ leader.name }}">
+          {% else %}<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:5rem;color:var(--n400);"><i class="fas fa-user"></i></div>{% endif %}
+        </div>
+        <div class="lead-body">
+          <div class="lead-title">{{ leader.title }}</div>
+          <div class="lead-name">{{ leader.name }}</div>
+          <div class="lead-bio">{{ leader.bio }}</div>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+{% endif %}
+
+<!-- Ministries -->
+{% if ministries %}
+<section class="section" id="ministries">
+  <div class="wrap">
+    <div style="margin-bottom:36px;" class="reveal">
+      <div class="eyebrow"><i class="fas fa-hands-praying" style="margin-right:6px;"></i>Get Involved</div>
+      <h2 class="sec-title">Our <em>Ministries</em></h2>
+    </div>
+    <div class="min-grid">
+      {% for ministry in ministries %}
+      <div class="min-card reveal d{{ forloop.counter }}">
+        {% if ministry.bg_file %}<div class="min-card-bg" style="background-image:url('{{ ministry.bg_file.url }}');"></div>
+        {% elif ministry.bg_url %}<div class="min-card-bg" style="background-image:url('{{ ministry.bg_url }}');"></div>{% endif %}
+        <div class="min-ring"><i class="{{ ministry.icon_class }}"></i></div>
+        <div class="min-name">{{ ministry.name }}</div>
+        <div class="min-desc">{{ ministry.description }}</div>
+        {% if ministry.leader_name %}<div style="font-size:.68rem;color:var(--muted);margin-top:8px;"><i class="fas fa-user" style="color:var(--accent);margin-right:5px;font-size:.6rem;"></i>{{ ministry.leader_name }}</div>{% endif %}
+        {% if ministry.meeting_time %}<div class="min-meet"><i class="fas fa-clock"></i>{{ ministry.meeting_time }}</div>{% endif %}
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+{% endif %}
+
+<!-- CTA -->
+<div style="background:linear-gradient(135deg,var(--n950),var(--n800));padding:80px 5%;text-align:center;">
+  <div class="reveal">
+    <div class="eyebrow eyebrow--center" style="justify-content:center;margin-bottom:14px;"><i class="fas fa-church" style="margin-right:8px;"></i>Join Us</div>
+    <h2 class="sec-title" style="margin-bottom:16px;">Experience <em>Church</em> With Us</h2>
+    <p style="font-size:.88rem;color:var(--muted);max-width:480px;margin:0 auto 32px;line-height:1.75;">Whether you're new to faith or returning after years, you are welcome here. Come as you are.</p>
+    <div style="display:flex;gap:14px;justify-content:center;flex-wrap:wrap;">
+      <a href="/new-visitor/" class="btn btn--gold"><i class="fas fa-door-open"></i>Plan Your Visit</a>
+      <a href="/contact/" class="btn btn--outline"><i class="fas fa-envelope"></i>Get in Touch</a>
+    </div>
+  </div>
+</div>
+{% endblock %}

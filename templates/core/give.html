@@ -1,0 +1,135 @@
+{% extends 'core/base.html' %}
+{% block title %}Give Online — {{ settings.church_name }}{% endblock %}
+{% block extra_css %}
+<style>
+.give-tabs{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:3px;margin-top:44px;}
+.give-tab{background:var(--bg3);padding:28px 26px;border-top:2px solid transparent;cursor:pointer;transition:all .25s var(--ease);}
+.give-tab:hover,.give-tab.active{border-top-color:var(--g600);background:rgba(200,152,42,.04);}
+.give-tab-icon{width:44px;height:44px;border:1px solid var(--border2);border-radius:50%;display:flex;align-items:center;justify-content:center;margin-bottom:14px;transition:all .25s;}
+.give-tab.active .give-tab-icon,.give-tab:hover .give-tab-icon{border-color:var(--g600);background:rgba(200,152,42,.07);}
+.give-tab-icon i{color:var(--accent);font-size:.9rem;}
+.give-tab-label{font-family:'Cormorant Garamond',serif;font-size:1.1rem;font-weight:500;color:var(--text);margin-bottom:4px;}
+.give-tab-type{font-size:.6rem;letter-spacing:.16em;text-transform:uppercase;color:var(--muted);font-weight:600;}
+.give-detail{display:none;background:rgba(200,152,42,.04);border:1px solid var(--border2);padding:36px;margin-top:3px;animation:fadeUp .35s var(--ease);}
+.give-detail.show{display:block;}
+@keyframes fadeUp{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+.give-row{display:flex;justify-content:space-between;align-items:center;padding:13px 0;border-bottom:1px solid var(--border);}
+.give-row:last-of-type{border-bottom:none;}
+.give-row-lbl{font-size:.6rem;letter-spacing:.16em;text-transform:uppercase;color:var(--muted);font-weight:700;}
+.give-row-val{font-size:.88rem;color:var(--text);font-weight:600;}
+.give-acct{font-family:'Cormorant Garamond',serif;font-size:1.6rem;color:var(--accent);letter-spacing:.04em;}
+.copy-btn{background:none;border:1px solid var(--border2);padding:4px 12px;color:var(--muted);font-size:.65rem;cursor:pointer;transition:all .2s var(--ease);}
+.copy-btn:hover{border-color:var(--g600);color:var(--accent);}
+.give-types{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:20px;}
+.gtype-btn{padding:7px 15px;border:1px solid var(--border2);background:transparent;color:var(--muted);font-size:.7rem;font-weight:600;cursor:pointer;transition:all .2s var(--ease);letter-spacing:.04em;}
+.gtype-btn:hover,.gtype-btn.active{background:rgba(200,152,42,.08);border-color:var(--g600);color:var(--accent);}
+.give-verse{border-left:2px solid var(--g600);padding:14px 18px;background:rgba(200,152,42,.03);margin-top:20px;}
+.give-verse p{font-family:'Cormorant Garamond',serif;font-style:italic;font-size:.97rem;color:var(--text2);line-height:1.7;}
+.give-verse cite{display:block;margin-top:6px;font-size:.58rem;color:var(--g600);letter-spacing:.16em;text-transform:uppercase;font-weight:700;}
+.ussd-box{background:var(--bg4);padding:28px;text-align:center;}
+.ussd-code{font-family:'Cormorant Garamond',serif;font-size:2.6rem;color:var(--accent);letter-spacing:.06em;font-weight:600;}
+.give-grid{display:grid;grid-template-columns:1fr 340px;gap:40px;align-items:start;margin-top:44px;}
+.give-sidebar{background:var(--bg3);padding:32px 28px;}
+.give-sidebar h3{font-family:'Cormorant Garamond',serif;font-size:1.4rem;color:var(--text);font-weight:500;margin-bottom:16px;}
+.give-sidebar-item{display:flex;gap:12px;align-items:flex-start;padding:12px 0;border-bottom:1px solid var(--border);}
+.give-sidebar-item:last-child{border-bottom:none;}
+.give-sidebar-ic{color:var(--accent);font-size:.88rem;margin-top:3px;flex-shrink:0;width:16px;}
+.give-sidebar-text{font-size:.8rem;color:var(--muted);line-height:1.6;}
+.give-sidebar-text strong{color:var(--text);display:block;font-size:.82rem;}
+@media(max-width:900px){.give-grid{grid-template-columns:1fr;}}
+</style>
+{% endblock %}
+{% block content %}
+<div class="pg-hero">
+  <div class="pg-hero-inner">
+    <div class="breadcrumb"><a href="/">Home</a><i class="fas fa-chevron-right"></i><span>Give</span></div>
+    <h1>Partner with <em>God's Work</em></h1>
+    <p>"Each of you should give what you have decided in your heart to give — for God loves a cheerful giver." — 2 Corinthians 9:7</p>
+  </div>
+</div>
+<section class="section section--dark">
+  <div class="wrap">
+    <div class="reveal">
+      <div class="eyebrow"><i class="fas fa-hand-holding-heart" style="margin-right:6px;"></i>Ways to Give</div>
+      <h2 class="sec-title">Choose a <em>Payment Method</em></h2>
+      <p class="sec-sub">Every seed sown is an act of faith and worship. Select the giving method that works best for you.</p>
+    </div>
+    {% if payment_methods %}
+    <div class="give-tabs reveal">
+      {% for pm in payment_methods %}
+      <div class="give-tab {% if forloop.first %}active{% endif %}" onclick="selectPM(this,{{ forloop.counter0 }})">
+        <div class="give-tab-icon"><i class="{{ pm.icon_class }}"></i></div>
+        <div class="give-tab-label">{{ pm.label }}</div>
+        <div class="give-tab-type">{{ pm.get_method_type_display }}</div>
+      </div>
+      {% endfor %}
+    </div>
+    {% for pm in payment_methods %}
+    <div class="give-detail {% if forloop.first %}show{% endif %}" id="pm-{{ forloop.counter0 }}">
+      {% if pm.method_type == 'bank' %}
+        {% if pm.bank_name %}<div class="give-row"><span class="give-row-lbl"><i class="fas fa-university" style="margin-right:5px;"></i>Bank Name</span><span class="give-row-val">{{ pm.bank_name }}</span></div>{% endif %}
+        {% if pm.account_name %}<div class="give-row"><span class="give-row-lbl"><i class="fas fa-user" style="margin-right:5px;"></i>Account Name</span><span class="give-row-val">{{ pm.account_name }}</span></div>{% endif %}
+        {% if pm.account_number %}<div class="give-row"><span class="give-row-lbl"><i class="fas fa-hashtag" style="margin-right:5px;"></i>Account Number</span><div style="display:flex;align-items:center;gap:12px;"><span class="give-acct" id="acct-{{ forloop.counter0 }}">{{ pm.account_number }}</span><button class="copy-btn" onclick="copyAcct('acct-{{ forloop.counter0 }}')"><i class="fas fa-copy" style="margin-right:4px;"></i>Copy</button></div></div>{% endif %}
+      {% elif pm.method_type in 'paystack,flutterwave' %}
+        <p style="font-size:.83rem;color:var(--muted);margin-bottom:18px;">Select your giving category and complete your gift securely online.</p>
+        <div class="give-types" id="gtypes-{{ forloop.counter0 }}">{% for gt in pm.giving_type_list %}<button class="gtype-btn {% if forloop.first %}active{% endif %}" onclick="setGtype(this)">{{ gt }}</button>{% endfor %}</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;">
+          <div class="fg"><label>Full Name</label><input type="text" id="gname-{{ forloop.counter0 }}" placeholder="Your name"></div>
+          <div class="fg"><label>Email Address</label><input type="email" id="gemail-{{ forloop.counter0 }}" placeholder="your@email.com"></div>
+        </div>
+        <div class="fg"><label>Amount (₦)</label><input type="number" id="gamount-{{ forloop.counter0 }}" placeholder="e.g. 5000" min="100"></div>
+        <button class="btn btn--gold" style="width:100%;justify-content:center;" onclick="payOnline('{{ pm.api_public_key }}','{{ forloop.counter0 }}','{{ pm.method_type }}')"><i class="fas fa-lock"></i>Pay Securely</button>
+        <p style="text-align:center;font-size:.65rem;color:var(--dimmer);margin-top:8px;"><i class="fas fa-shield-alt" style="color:var(--accent);margin-right:4px;"></i>256-bit SSL · Secured by {{ pm.get_method_type_display }}</p>
+      {% elif pm.method_type == 'ussd' %}
+        <p style="font-size:.83rem;color:var(--muted);margin-bottom:16px;">Dial this code from your mobile phone — no internet required:</p>
+        <div class="ussd-box"><div class="ussd-code">{{ pm.ussd_code|default:"*000#" }}</div><p style="font-size:.7rem;color:var(--muted);margin-top:10px;">Works on all Nigerian networks</p></div>
+      {% else %}
+        <div style="padding:20px 0;font-size:.85rem;color:var(--muted);line-height:1.7;"><i class="fas fa-info-circle" style="color:var(--accent);margin-right:8px;"></i>Contact us at <a href="mailto:{{ settings.email }}" style="color:var(--accent);">{{ settings.email }}</a> or <a href="tel:{{ settings.phone_primary }}" style="color:var(--accent);">{{ settings.phone_primary }}</a> for more giving options.</div>
+      {% endif %}
+      <div class="give-verse"><p>"Bring the whole tithe into the storehouse, that there may be food in my house. Test me in this,' says the LORD Almighty, 'and see if I will not throw open the floodgates of heaven and pour out so much blessing that there will not be room enough to store it."</p><cite>— Malachi 3:10</cite></div>
+    </div>
+    {% endfor %}
+    {% else %}
+    <div style="background:var(--bg3);padding:40px;text-align:center;margin-top:40px;" class="reveal">
+      <i class="fas fa-university" style="font-size:2.5rem;color:var(--accent);display:block;margin-bottom:14px;"></i>
+      <p style="font-size:.85rem;color:var(--muted);">Payment methods are being configured. Contact us at <a href="mailto:{{ settings.email }}" style="color:var(--accent);">{{ settings.email }}</a> to give.</p>
+    </div>
+    {% endif %}
+  </div>
+</section>
+<section style="padding:80px 5%;text-align:center;background:var(--n950);position:relative;overflow:hidden;">
+  {% if bg_give %}<div style="position:absolute;inset:0;background-image:url('{{ bg_give }}');background-size:cover;background-position:center;opacity:.07;"></div>{% endif %}
+  <div style="position:relative;z-index:2;" class="reveal">
+    <div class="eyebrow eyebrow--center" style="justify-content:center;margin-bottom:14px;"><i class="fas fa-star" style="margin-right:8px;"></i>Your Impact</div>
+    <h2 class="sec-title">Your Giving <em>Changes Lives</em></h2>
+    <p style="font-size:.88rem;color:var(--muted);max-width:500px;margin:14px auto 30px;line-height:1.75;">"Give, and it will be given to you — a good measure, pressed down, shaken together and running over, will be poured into your lap." — Luke 6:38</p>
+    <div style="display:flex;gap:14px;justify-content:center;flex-wrap:wrap;">
+      <a href="/contact/" class="btn btn--outline"><i class="fas fa-envelope"></i>Contact Us</a>
+      <a href="/new-visitor/" class="btn btn--gold"><i class="fas fa-church"></i>Join Us Sunday</a>
+    </div>
+  </div>
+</section>
+{% endblock %}
+{% block extra_js %}
+<script>
+function selectPM(card,idx){
+  document.querySelectorAll('.give-tab').forEach(c=>c.classList.remove('active'));
+  document.querySelectorAll('.give-detail').forEach(d=>d.classList.remove('show'));
+  card.classList.add('active');
+  const d=document.getElementById('pm-'+idx);
+  if(d){d.classList.add('show');d.scrollIntoView({behavior:'smooth',block:'nearest'});}
+}
+function setGtype(btn){btn.closest('.give-types').querySelectorAll('.gtype-btn').forEach(b=>b.classList.remove('active'));btn.classList.add('active');}
+function copyAcct(id){const el=document.getElementById(id);if(el)navigator.clipboard.writeText(el.textContent.trim()).then(()=>showToast('Account number copied!'));}
+function payOnline(key,idx,type){
+  const name=document.getElementById('gname-'+idx)?.value?.trim();
+  const email=document.getElementById('gemail-'+idx)?.value?.trim();
+  const amount=document.getElementById('gamount-'+idx)?.value;
+  const gtype=document.querySelector(`#pm-${idx} .gtype-btn.active`)?.textContent||'Offering';
+  if(!name||!email||!amount){showToast('Please fill in all fields.');return;}
+  if(!key){showToast('Payment key not configured. Please use bank transfer.');return;}
+  if(type==='paystack'){const h=PaystackPop.setup({key,email,amount:parseInt(amount)*100,currency:'NGN',ref:'FOG-'+Date.now(),metadata:{custom_fields:[{display_name:'Giving Type',variable_name:'giving_type',value:gtype}]},callback:r=>showToast('Thank you for your '+gtype+' of ₦'+amount+'! Ref: '+r.reference),onClose:()=>{}});h.openIframe();}
+}
+</script>
+{% if payment_methods %}{% for pm in payment_methods %}{% if pm.method_type == 'paystack' and pm.api_public_key %}<script src="https://js.paystack.co/v1/inline.js"></script>{% endif %}{% endfor %}{% endif %}
+{% endblock %}

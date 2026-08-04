@@ -1,0 +1,460 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>{% block title %}{{ settings.church_name }}{% endblock %}</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,400&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<style>
+:root{
+  --bg:#0a0e1a; --bg2:#0f1525; --bg3:#141c2e; --bg4:#1a2438;
+  --red:#c0182a; --red2:#e8253a; --red3:#96121f;
+  --gold:#d4a843; --gold2:#f0c44a;
+  --white:#ffffff; --off:#f0f4ff; --text:#e8edf8; --muted:#7a8aaa; --dim:#3a4a6a;
+  --border:rgba(255,255,255,.07); --border2:rgba(255,255,255,.13);
+  --radius:14px; --radius-sm:8px; --radius-lg:20px;
+  --ease:cubic-bezier(.25,.46,.45,.94); --ease-spring:cubic-bezier(.34,1.56,.64,1);
+  --shadow:0 4px 24px rgba(0,0,0,.35); --shadow-lg:0 12px 48px rgba(0,0,0,.5);
+}
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
+html{scroll-behavior:smooth;font-size:16px;}
+body{font-family:'Poppins',sans-serif;background:var(--bg);color:var(--text);overflow-x:hidden;line-height:1.6;}
+img{display:block;max-width:100%;}
+a{color:inherit;text-decoration:none;}
+button{font-family:inherit;cursor:pointer;}
+::-webkit-scrollbar{width:4px;}
+::-webkit-scrollbar-track{background:var(--bg);}
+::-webkit-scrollbar-thumb{background:var(--red);border-radius:2px;}
+
+/* ── ANNOUNCEMENT TICKER ── */
+.ann-bar{height:34px;background:var(--red);display:flex;align-items:center;overflow:hidden;position:relative;z-index:1001;}
+.ann-inner{overflow:hidden;flex:1;}
+.ann-ticker{display:inline-flex;gap:56px;white-space:nowrap;animation:ticker 40s linear infinite;font-size:.68rem;font-weight:600;letter-spacing:.06em;color:#fff;}
+.ann-ticker i{opacity:.75;font-size:.6rem;margin-right:6px;}
+@keyframes ticker{0%{transform:translateX(0)}100%{transform:translateX(-50%)}}
+
+/* ── NAVIGATION ── */
+#mainNav{
+  position:sticky;top:0;z-index:1000;height:64px;
+  background:rgba(10,14,26,.95);backdrop-filter:blur(20px);
+  border-bottom:1px solid var(--border);
+  transition:box-shadow .3s var(--ease);
+}
+#mainNav.scrolled{box-shadow:0 4px 32px rgba(0,0,0,.6);}
+.nav-inner{max-width:1400px;margin:0 auto;height:100%;display:flex;align-items:center;justify-content:space-between;padding:0 5%;}
+
+/* Logo — image only */
+.nav-logo{display:flex;align-items:center;flex-shrink:0;}
+.nav-logo img{height:52px;width:auto;max-width:180px;object-fit:contain;}
+.nav-logo-icon{width:52px;height:52px;border-radius:50%;background:var(--red);display:flex;align-items:center;justify-content:center;flex-shrink:0;box-shadow:0 0 16px rgba(192,24,42,.4);}
+.nav-logo-icon i{color:#fff;font-size:1.1rem;}
+
+/* Center links — desktop only */
+.nav-center{display:flex;align-items:center;gap:4px;list-style:none;}
+.nav-center>li>a{font-size:.72rem;font-weight:500;color:var(--muted);padding:7px 13px;border-radius:var(--radius-sm);transition:color .2s,background .2s;}
+.nav-center>li>a:hover{color:var(--white);background:rgba(255,255,255,.06);}
+
+/* Right — social icons desktop */
+.nav-right{display:flex;align-items:center;gap:10px;}
+.nav-social-link{width:32px;height:32px;border-radius:50%;border:1px solid var(--border2);display:flex;align-items:center;justify-content:center;color:var(--muted);font-size:.78rem;transition:all .22s var(--ease);}
+.nav-social-link:hover{background:var(--red);border-color:var(--red);color:#fff;}
+
+/* Hamburger */
+.hamburger{display:none;background:none;border:none;padding:6px;flex-shrink:0;width:36px;height:36px;flex-direction:column;align-items:center;justify-content:center;gap:5px;}
+.ham-line{display:block;width:22px;height:2px;background:var(--text);border-radius:2px;transition:transform .35s var(--ease),opacity .25s,width .3s var(--ease);}
+.hamburger.open .ham-line:nth-child(1){transform:translateY(7px) rotate(45deg);}
+.hamburger.open .ham-line:nth-child(2){opacity:0;width:0;}
+.hamburger.open .ham-line:nth-child(3){transform:translateY(-7px) rotate(-45deg);}
+
+/* ── SLIDE-IN DRAWER (left→right, 80% width) ── */
+.nav-drawer-overlay{
+  display:none;position:fixed;inset:0;z-index:998;
+  background:rgba(0,0,0,.5);backdrop-filter:blur(4px);
+  opacity:0;transition:opacity .3s var(--ease);
+}
+.nav-drawer-overlay.open{display:block;}
+.nav-drawer-overlay.visible{opacity:1;}
+.nav-drawer{
+  position:fixed;top:0;left:0;bottom:0;
+  width:80%;max-width:360px;z-index:999;
+  background:var(--bg2);
+  border-right:1px solid var(--border);
+  display:flex;flex-direction:column;
+  transform:translateX(-100%);
+  transition:transform .38s var(--ease);
+  overflow-y:auto;
+}
+.nav-drawer.open{transform:translateX(0);}
+.drawer-header{display:flex;align-items:center;justify-content:space-between;padding:18px 20px;border-bottom:1px solid var(--border);flex-shrink:0;}
+.drawer-logo{display:flex;align-items:center;gap:10px;}
+.drawer-logo img{height:32px;object-fit:contain;}
+.drawer-logo-icon{width:32px;height:32px;border-radius:50%;background:var(--red);display:flex;align-items:center;justify-content:center;}
+.drawer-logo-icon i{color:#fff;font-size:.78rem;}
+.drawer-logo-name{font-size:.85rem;font-weight:700;color:var(--white);}
+.drawer-close{width:40px;height:40px;border-radius:50%;background:rgba(255,255,255,.07);border:1px solid var(--border2);display:flex;align-items:center;justify-content:center;color:var(--muted);font-size:1rem;transition:all .2s;flex-shrink:0;cursor:pointer;}
+.drawer-close:hover,.drawer-close:active{background:var(--red);border-color:var(--red);color:#fff;}
+.drawer-nav{list-style:none;padding:12px 0;flex:1;}
+.drawer-nav li a{display:flex;align-items:center;gap:14px;padding:13px 22px;font-size:.88rem;font-weight:500;color:var(--muted);transition:all .22s var(--ease);border-left:3px solid transparent;}
+.drawer-nav li a:hover,.drawer-nav li a.active{color:var(--white);background:rgba(192,24,42,.08);border-left-color:var(--red);}
+.drawer-nav li a i{color:var(--red2);font-size:.88rem;width:20px;}
+.drawer-divider{height:1px;background:var(--border);margin:8px 22px;}
+.drawer-live-btn{display:flex;align-items:center;gap:10px;padding:13px 22px;font-size:.88rem;font-weight:600;color:var(--red2);transition:all .22s;border-left:3px solid transparent;}
+.drawer-live-btn:hover{background:rgba(192,24,42,.1);border-left-color:var(--red);}
+.drawer-live-dot{width:7px;height:7px;border-radius:50%;background:var(--red2);animation:lpulse 1.3s ease-in-out infinite;}
+@keyframes lpulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.25;transform:scale(1.7)}}
+.drawer-footer{padding:18px 22px;border-top:1px solid var(--border);flex-shrink:0;}
+.drawer-social{display:flex;gap:10px;margin-bottom:14px;}
+.drawer-social a{width:34px;height:34px;border-radius:50%;border:1px solid var(--border2);display:flex;align-items:center;justify-content:center;color:var(--muted);font-size:.8rem;transition:all .2s;}
+.drawer-social a:hover{background:var(--red);border-color:var(--red);color:#fff;}
+.drawer-footer p{font-size:.68rem;color:var(--dim);}
+
+/* ── NOTIFICATION BANNER ── */
+.notif-bar{display:none;background:var(--bg3);border-bottom:1px solid var(--border);padding:10px 5%;align-items:center;gap:12px;}
+.notif-bar.show{display:flex;}
+.notif-bar .msg{flex:1;font-size:.76rem;color:var(--muted);}
+.notif-bar .msg strong{color:var(--text);}
+.notif-en{background:var(--red);color:#fff;border:none;padding:6px 14px;border-radius:var(--radius-sm);font-size:.68rem;font-weight:700;flex-shrink:0;}
+.notif-x{background:none;border:none;color:var(--dim);font-size:1rem;flex-shrink:0;}
+
+/* ── REGISTER TOAST ── */
+.reg-toast{
+  position:fixed;bottom:20px;left:50%;transform:translateX(-50%) translateY(130px);
+  z-index:5000;background:var(--bg3);border:1px solid var(--border2);
+  border-radius:var(--radius-lg);padding:14px 18px;
+  display:flex;align-items:center;gap:12px;
+  box-shadow:var(--shadow-lg);min-width:280px;max-width:360px;
+  transition:transform .45s var(--ease-spring), opacity .35s var(--ease), visibility .35s;
+  opacity:0; visibility:hidden; pointer-events:none;
+}
+.reg-toast.show{transform:translateX(-50%) translateY(0); opacity:1; visibility:visible; pointer-events:auto;}
+.reg-toast-icon{width:36px;height:36px;border-radius:50%;background:rgba(192,24,42,.15);border:1px solid rgba(192,24,42,.3);display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.reg-toast-icon i{color:var(--red2);font-size:.9rem;}
+.reg-toast-text{flex:1;}
+.reg-toast-text p{font-size:.75rem;color:var(--muted);line-height:1.4;}
+.reg-toast-text strong{color:var(--text);display:block;font-size:.78rem;margin-bottom:2px;}
+.reg-toast-btn{background:var(--red);color:#fff;border:none;border-radius:var(--radius-sm);padding:7px 14px;font-size:.7rem;font-weight:700;white-space:nowrap;flex-shrink:0;}
+.reg-toast-x{background:none;border:none;color:var(--dim);font-size:1rem;flex-shrink:0;padding:2px;}
+
+/* ── SHARED LAYOUT ── */
+.wrap{max-width:1360px;margin:0 auto;padding:0 5%;}
+.section{padding:80px 0;}
+.section--alt{background:var(--bg2);}
+
+/* Eyebrow label */
+.eyebrow{font-size:.62rem;font-weight:700;letter-spacing:.26em;text-transform:uppercase;color:var(--red2);margin-bottom:10px;}
+.sec-title{font-size:clamp(1.7rem,4vw,3rem);font-weight:800;color:var(--white);line-height:1.15;}
+.sec-title em{font-style:normal;color:var(--gold2);}
+.sec-sub{font-size:.88rem;color:var(--muted);line-height:1.75;margin-top:12px;}
+
+/* Reveal animation */
+.reveal{opacity:0;transform:translateY(40px);transition:opacity .65s var(--ease),transform .65s var(--ease);}
+.reveal.in{opacity:1;transform:translateY(0);}
+.reveal.fl{transform:translateX(-40px);}.reveal.fl.in{transform:translateX(0);}
+.reveal.fr{transform:translateX(40px);}.reveal.fr.in{transform:translateX(0);}
+.d1{transition-delay:.08s}.d2{transition-delay:.16s}.d3{transition-delay:.24s}
+.d4{transition-delay:.32s}.d5{transition-delay:.40s}.d6{transition-delay:.48s}
+
+/* Buttons */
+.btn{display:inline-flex;align-items:center;gap:8px;font-size:.74rem;font-weight:700;letter-spacing:.06em;padding:12px 24px;border-radius:var(--radius-sm);border:none;cursor:pointer;transition:all .22s var(--ease);}
+.btn--red{background:var(--red);color:#fff;}
+.btn--red:hover{background:var(--red2);transform:translateY(-2px);box-shadow:0 6px 22px rgba(192,24,42,.4);}
+.btn--gold{background:var(--gold);color:#0a0e1a;}
+.btn--gold:hover{background:var(--gold2);transform:translateY(-2px);}
+.btn--outline{background:transparent;border:1.5px solid var(--border2);color:var(--text);}
+.btn--outline:hover{border-color:rgba(192,24,42,.5);color:var(--red2);}
+.btn--ghost{background:rgba(255,255,255,.08);color:var(--text);border:1px solid rgba(255,255,255,.1);}
+.btn--ghost:hover{background:rgba(255,255,255,.14);}
+.btn--sm{padding:8px 16px;font-size:.68rem;}
+.btn--pill{border-radius:50px;}
+.btn--full{width:100%;justify-content:center;}
+
+/* Forms */
+.fg{margin-bottom:15px;}
+.fg label{display:block;font-size:.62rem;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin-bottom:6px;}
+.fg input,.fg textarea,.fg select{width:100%;background:rgba(255,255,255,.05);border:1.5px solid rgba(255,255,255,.09);border-radius:var(--radius-sm);padding:11px 14px;color:var(--text);font-family:'Poppins',sans-serif;font-size:.85rem;outline:none;transition:border-color .2s,background .2s;}
+.fg input:focus,.fg textarea:focus,.fg select:focus{border-color:var(--red);background:rgba(192,24,42,.04);}
+.fg textarea{resize:vertical;min-height:110px;}
+.fg select option{background:var(--bg3);}
+
+/* BG wrap */
+.bg-wrap{position:relative;overflow:hidden;}
+.bg-img{position:absolute;inset:0;background:center/cover no-repeat;z-index:0;}
+.bg-ov{position:absolute;inset:0;z-index:1;}
+.bg-ov--dark{background:rgba(10,14,26,.88);}
+.bg-ov--deep{background:rgba(10,14,26,.94);}
+.bg-wrap>.wrap,.bg-wrap>*:not(.bg-img):not(.bg-ov){position:relative;z-index:2;}
+
+/* Page hero */
+.pg-hero{padding:100px 5% 64px;background:linear-gradient(160deg,var(--bg) 0%,var(--bg2) 55%,var(--bg) 100%);position:relative;overflow:hidden;}
+.pg-hero::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 55% 60% at 20% 50%,rgba(192,24,42,.09) 0%,transparent 65%);}
+.pg-hero-inner{position:relative;z-index:2;max-width:1360px;margin:0 auto;}
+.pg-hero h1{font-size:clamp(2.2rem,5.5vw,4.2rem);font-weight:800;color:var(--white);line-height:1.1;}
+.pg-hero h1 em{font-style:normal;color:var(--gold2);}
+.pg-hero p{font-size:.9rem;color:var(--muted);margin-top:13px;max-width:520px;line-height:1.72;}
+.breadcrumb{display:flex;align-items:center;gap:7px;font-size:.67rem;color:var(--dim);margin-bottom:16px;}
+.breadcrumb a{color:var(--muted);transition:color .2s;}
+.breadcrumb a:hover{color:var(--red2);}
+.breadcrumb i{font-size:.48rem;}
+
+/* Toast */
+.sm-toast{position:fixed;bottom:24px;right:24px;z-index:9999;background:var(--bg3);border:1px solid var(--border2);border-left:3px solid var(--red);padding:12px 18px;border-radius:var(--radius-sm);font-size:.78rem;color:var(--text);box-shadow:var(--shadow-lg);max-width:280px;line-height:1.5;animation:tIn .4s var(--ease);}
+@keyframes tIn{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+
+/* Modal */
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.85);backdrop-filter:blur(8px);z-index:9000;align-items:center;justify-content:center;padding:20px;}
+.modal-overlay.open{display:flex;}
+.modal-box{background:var(--bg3);border:1px solid var(--border2);border-radius:var(--radius);padding:40px;max-width:500px;width:100%;position:relative;animation:mIn .35s var(--ease);}
+@keyframes mIn{from{opacity:0;transform:scale(.93) translateY(16px)}to{opacity:1;transform:scale(1) translateY(0)}}
+.modal-close{position:absolute;top:14px;right:16px;background:none;border:none;color:var(--muted);font-size:1.2rem;transition:color .2s;}
+.modal-close:hover{color:var(--text);}
+
+/* ── FOOTER ── */
+footer{background:var(--bg);border-top:1px solid var(--border);padding:60px 5% 32px;}
+.foot-grid{max-width:1360px;margin:0 auto;display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:44px;margin-bottom:44px;}
+.foot-brand-name{font-size:1rem;font-weight:800;color:var(--white);margin-bottom:12px;display:flex;align-items:center;gap:10px;}
+.foot-brand-name i{color:var(--red);font-size:.9rem;}
+.foot-brand p{font-size:.78rem;color:var(--muted);line-height:1.75;margin-bottom:18px;}
+.foot-social{display:flex;gap:8px;}
+.foot-social a{width:30px;height:30px;border-radius:50%;background:rgba(192,24,42,.08);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;color:var(--muted);font-size:.72rem;transition:all .2s var(--ease);}
+.foot-social a:hover{background:var(--red);border-color:var(--red);color:#fff;}
+.foot-col h4{font-size:.58rem;letter-spacing:.22em;text-transform:uppercase;color:var(--red2);font-weight:700;margin-bottom:14px;}
+.foot-col ul{list-style:none;}
+.foot-col ul li{margin-bottom:8px;}
+.foot-col ul li a{font-size:.78rem;color:var(--muted);transition:color .2s,padding-left .2s;}
+.foot-col ul li a:hover{color:var(--white);padding-left:5px;}
+.foot-svc-row{display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid rgba(255,255,255,.04);font-size:.74rem;}
+.foot-svc-day{color:var(--red2);font-weight:600;font-size:.65rem;letter-spacing:.06em;}
+.foot-svc-time{color:var(--muted);}
+.foot-ct p{font-size:.78rem;color:var(--muted);line-height:1.9;}
+.foot-ct i{color:var(--red2);margin-right:7px;width:13px;}
+.foot-ct a:hover{color:var(--white);}
+.foot-bottom{border-top:1px solid var(--border);padding-top:20px;max-width:1360px;margin:0 auto;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;}
+.foot-bottom p{font-size:.68rem;color:var(--dim);}
+.foot-bottom span{color:var(--red2);}
+
+/* ── RESPONSIVE ── */
+@media(max-width:1024px){.foot-grid{grid-template-columns:1fr 1fr;gap:32px;}}
+@media(max-width:900px){.nav-center{display:none!important;}.nav-right{display:none!important;}.hamburger{display:flex!important;}.foot-grid{grid-template-columns:1fr 1fr;gap:26px;}}
+@media(max-width:600px){.foot-grid{grid-template-columns:1fr;gap:22px;}.foot-bottom{flex-direction:column;text-align:center;}.section{padding:60px 0;}}
+</style>
+{% block extra_css %}{% endblock %}
+</head>
+<body>
+
+{% if announcements %}
+<div class="ann-bar">
+  <div class="ann-inner">
+    <div class="ann-ticker">
+      {% for ann in announcements %}<span><i class="fas {% if ann.is_urgent %}fa-circle-exclamation{% else %}fa-star{% endif %}"></i>{{ ann.title }} — {{ ann.body|truncatechars:60 }}</span>{% endfor %}
+      {% for ann in announcements %}<span><i class="fas {% if ann.is_urgent %}fa-circle-exclamation{% else %}fa-star{% endif %}"></i>{{ ann.title }} — {{ ann.body|truncatechars:60 }}</span>{% endfor %}
+    </div>
+  </div>
+</div>
+{% endif %}
+
+<nav id="mainNav">
+  <div class="nav-inner">
+    <!-- Left: Logo only -->
+    <a href="/" class="nav-logo">
+      {% if settings.logo_file %}<img src="{{ settings.logo_file.url }}" alt="{{ settings.church_name }}">
+      {% elif settings.logo_url %}<img src="{{ settings.logo_url }}" alt="{{ settings.church_name }}">
+      {% else %}<div class="nav-logo-icon"><i class="fas fa-cross"></i></div>{% endif %}
+    </a>
+
+    <!-- Center: Nav links (desktop) -->
+    <ul class="nav-center">
+      <li><a href="/">Home</a></li>
+      <li><a href="/about/">About</a></li>
+      <li><a href="/sermons/">Sermons</a></li>
+      <li><a href="/events/">Events</a></li>
+      <li><a href="/testimonies/">Testimonies</a></li>
+      <li><a href="/new-visitor/">New Here</a></li>
+      <li><a href="/contact/">Contact</a></li>
+      <li><a href="/live/" style="color:var(--red2);font-weight:600;display:flex;align-items:center;gap:6px;"><span class="drawer-live-dot" style="width:6px;height:6px;border-radius:50%;background:var(--red2);display:inline-block;"></span>Live</a></li>
+      <li><a href="/give/" style="background:var(--red);color:#fff;padding:7px 14px;border-radius:var(--radius-sm);font-weight:600;">Give</a></li>
+    </ul>
+
+    <!-- Right: Social links (desktop) -->
+    <div class="nav-right">
+      {% if settings.facebook_url %}<a href="{{ settings.facebook_url }}" target="_blank" class="nav-social-link"><i class="fab fa-facebook-f"></i></a>{% endif %}
+      {% if settings.instagram_url %}<a href="{{ settings.instagram_url }}" target="_blank" class="nav-social-link"><i class="fab fa-instagram"></i></a>{% endif %}
+      {% if settings.youtube_url %}<a href="{{ settings.youtube_url }}" target="_blank" class="nav-social-link"><i class="fab fa-youtube"></i></a>{% endif %}
+      <a href="https://wa.me/{{ settings.whatsapp|cut:'+' }}" target="_blank" class="nav-social-link"><i class="fab fa-whatsapp"></i></a>
+    </div>
+
+    <!-- Mobile hamburger -->
+    <button class="hamburger" id="ham" onclick="openDrawer()" aria-label="Open menu">
+      <span class="ham-line"></span>
+      <span class="ham-line"></span>
+      <span class="ham-line"></span>
+    </button>
+  </div>
+</nav>
+
+<!-- Drawer overlay -->
+<div class="nav-drawer-overlay" id="drawerOverlay" onclick="closeDrawer()"></div>
+
+<!-- Slide-in nav drawer (left→right, 80%) -->
+<div class="nav-drawer" id="navDrawer">
+  <div class="drawer-header">
+    <div class="drawer-logo">
+      {% if settings.logo_file %}<img src="{{ settings.logo_file.url }}" alt="{{ settings.church_name }}">
+      {% elif settings.logo_url %}<img src="{{ settings.logo_url }}" alt="{{ settings.church_name }}">
+      {% else %}<div class="drawer-logo-icon"><i class="fas fa-cross"></i></div>{% endif %}
+      <span class="drawer-logo-name">{{ settings.church_name }}</span>
+    </div>
+    <button class="drawer-close" onclick="closeDrawer()" aria-label="Close menu"><i class="fas fa-times"></i></button>
+  </div>
+
+  <ul class="drawer-nav">
+    <li><a href="/" onclick="closeDrawer()"><i class="fas fa-home"></i>Home</a></li>
+    <li><a href="/about/" onclick="closeDrawer()"><i class="fas fa-church"></i>About Us</a></li>
+    <li><a href="/sermons/" onclick="closeDrawer()"><i class="fas fa-bible"></i>Sermons</a></li>
+    <li><a href="/events/" onclick="closeDrawer()"><i class="fas fa-calendar-alt"></i>Events</a></li>
+    <li><a href="/testimonies/" onclick="closeDrawer()"><i class="fas fa-hands-praying"></i>Testimonies</a></li>
+    <li><a href="/new-visitor/" onclick="closeDrawer()"><i class="fas fa-door-open"></i>New Visitor</a></li>
+    <li><a href="/give/" onclick="closeDrawer()"><i class="fas fa-heart"></i>Give Online</a></li>
+    <li><a href="/contact/" onclick="closeDrawer()"><i class="fas fa-envelope"></i>Contact</a></li>
+    <div class="drawer-divider"></div>
+    {% if user.is_authenticated %}
+    <li><a href="/dashboard/" onclick="closeDrawer()"><i class="fas fa-user-circle"></i>My Dashboard</a></li>
+    <li><a href="/auth/logout/"><i class="fas fa-sign-out-alt"></i>Sign Out</a></li>
+    {% else %}
+    <li><a href="/auth/login/" onclick="closeDrawer()"><i class="fas fa-sign-in-alt"></i>Sign In</a></li>
+    <li><a href="/auth/register/" onclick="closeDrawer()"><i class="fas fa-user-plus"></i>Register</a></li>
+    {% endif %}
+    <div class="drawer-divider"></div>
+    <li><a href="/live/" class="drawer-live-btn" onclick="closeDrawer()"><span class="drawer-live-dot"></span>Watch Live</a></li>
+  </ul>
+
+  <div class="drawer-footer">
+    <div class="drawer-social">
+      {% if settings.facebook_url %}<a href="{{ settings.facebook_url }}" target="_blank"><i class="fab fa-facebook-f"></i></a>{% endif %}
+      {% if settings.instagram_url %}<a href="{{ settings.instagram_url }}" target="_blank"><i class="fab fa-instagram"></i></a>{% endif %}
+      {% if settings.youtube_url %}<a href="{{ settings.youtube_url }}" target="_blank"><i class="fab fa-youtube"></i></a>{% endif %}
+      <a href="https://wa.me/{{ settings.whatsapp|cut:'+' }}" target="_blank"><i class="fab fa-whatsapp"></i></a>
+    </div>
+    <p>{{ settings.denomination }} · {{ settings.address|truncatechars:40 }}</p>
+  </div>
+</div>
+
+{% block content %}{% endblock %}
+
+<footer>
+  <div class="foot-grid">
+    <div class="foot-brand">
+      <div class="foot-brand-name"><i class="fas fa-cross"></i>{{ settings.church_name }}</div>
+      <p>{{ settings.tagline }}<br>{{ settings.mission_statement|truncatechars:100 }}</p>
+      <div class="foot-social">
+        {% if settings.facebook_url %}<a href="{{ settings.facebook_url }}" target="_blank"><i class="fab fa-facebook-f"></i></a>{% endif %}
+        {% if settings.instagram_url %}<a href="{{ settings.instagram_url }}" target="_blank"><i class="fab fa-instagram"></i></a>{% endif %}
+        {% if settings.youtube_url %}<a href="{{ settings.youtube_url }}" target="_blank"><i class="fab fa-youtube"></i></a>{% endif %}
+        {% if settings.twitter_url %}<a href="{{ settings.twitter_url }}" target="_blank"><i class="fab fa-x-twitter"></i></a>{% endif %}
+        <a href="https://wa.me/{{ settings.whatsapp|cut:'+' }}" target="_blank"><i class="fab fa-whatsapp"></i></a>
+      </div>
+    </div>
+    <div class="foot-col">
+      <h4>Navigate</h4>
+      <ul>
+        <li><a href="/">Home</a></li>
+        <li><a href="/about/">About Us</a></li>
+        <li><a href="/sermons/">Sermons</a></li>
+        <li><a href="/events/">Events</a></li>
+        <li><a href="/testimonies/">Testimonies</a></li>
+        <li><a href="/give/">Give Online</a></li>
+        <li><a href="/live/">Watch Live</a></li>
+      </ul>
+    </div>
+    <div class="foot-col">
+      <h4>Service Times</h4>
+      {% for svc in settings.servicetime_set.all %}
+      <div class="foot-svc-row"><span class="foot-svc-day">{{ svc.get_day_display|slice:":3"|upper }}</span><span style="color:var(--text);font-size:.75rem;">{{ svc.service_name }}</span><span class="foot-svc-time">{{ svc.start_time|time:"g:iA" }}</span></div>
+      {% empty %}
+      <div class="foot-svc-row"><span class="foot-svc-day">SUN</span><span style="color:var(--text);font-size:.75rem;">1st Service</span><span class="foot-svc-time">7:30AM</span></div>
+      <div class="foot-svc-row"><span class="foot-svc-day">WED</span><span style="color:var(--text);font-size:.75rem;">Bible Study</span><span class="foot-svc-time">6:00PM</span></div>
+      {% endfor %}
+    </div>
+    <div class="foot-col foot-ct">
+      <h4>Contact</h4>
+      <p><i class="fas fa-map-marker-alt"></i>{{ settings.address }}<br><br><i class="fas fa-phone"></i><a href="tel:{{ settings.phone_primary }}">{{ settings.phone_primary }}</a><br><i class="fab fa-whatsapp"></i><a href="https://wa.me/{{ settings.whatsapp|cut:'+' }}" target="_blank">{{ settings.whatsapp }}</a><br><i class="fas fa-envelope"></i><a href="mailto:{{ settings.email }}">{{ settings.email }}</a></p>
+    </div>
+  </div>
+  <div class="foot-bottom">
+    <p>&copy; {{ settings.church_name }}. Founded <span>{{ settings.founding_year }}</span>. All Rights Reserved.</p>
+    <p>Lagos, Nigeria</p>
+  </div>
+</footer>
+
+<script>
+/* ── Nav scroll ── */
+window.addEventListener('scroll',()=>document.getElementById('mainNav').classList.toggle('scrolled',scrollY>40),{passive:true});
+
+/* ── Drawer ── (hoisted to window so inline onclick always finds them) */
+window.openDrawer = function(){
+  const drawer=document.getElementById('navDrawer');
+  const overlay=document.getElementById('drawerOverlay');
+  const ham=document.getElementById('ham');
+  if(!drawer)return;
+  drawer.classList.add('open');
+  overlay.classList.add('open');
+  ham.classList.add('open');
+  document.body.style.overflow='hidden';
+  requestAnimationFrame(()=>overlay.classList.add('visible'));
+};
+window.closeDrawer = function(){
+  const drawer=document.getElementById('navDrawer');
+  const overlay=document.getElementById('drawerOverlay');
+  const ham=document.getElementById('ham');
+  if(!drawer)return;
+  drawer.classList.remove('open');
+  overlay.classList.remove('visible');
+  ham.classList.remove('open');
+  document.body.style.overflow='';
+  setTimeout(()=>overlay.classList.remove('open'),320);
+};
+window.closeNavDrawer = window.closeDrawer;
+
+/* ── Reveal on scroll ── */
+const ro=new IntersectionObserver(entries=>entries.forEach(e=>{if(e.isIntersecting){e.target.classList.add('in');ro.unobserve(e.target);}}),{threshold:.07,rootMargin:'0px 0px -30px 0px'});
+document.querySelectorAll('.reveal').forEach(el=>ro.observe(el));
+
+/* ── Modals ── */
+function openModal(id){document.getElementById(id).classList.add('open');document.body.style.overflow='hidden';}
+function closeModal(id){document.getElementById(id).classList.remove('open');document.body.style.overflow='';}
+document.querySelectorAll('.modal-overlay').forEach(el=>el.addEventListener('click',e=>{if(e.target===el)closeModal(el.id);}));
+
+/* ── Toast ── */
+function showToast(m){const t=document.createElement('div');t.className='sm-toast';t.textContent=m;document.body.appendChild(t);setTimeout(()=>{t.style.opacity='0';setTimeout(()=>t.remove(),350);},3800);}
+function getCookie(n){const v=document.cookie.match('(^|;)\\s*'+n+'\\s*=\\s*([^;]+)');return v?v.pop():'';}
+
+/* ── Register toast (homepage only) ── */
+function initRegToast(){
+  const el=document.getElementById('regToast');
+  if(!el)return;
+  if(sessionStorage.getItem('rtDismissed'))return;
+  {% if not user.is_authenticated %}
+  setTimeout(()=>el.classList.add('show'),2200);
+  {% endif %}
+}
+function closeRegToast(){
+  const el=document.getElementById('regToast');
+  if(el){el.classList.remove('show');}
+  sessionStorage.setItem('rtDismissed','1');
+  // fully hide after animation completes
+  setTimeout(()=>{if(el)el.style.display='none';},500);
+}
+
+/* ── Push notifications ── */
+const NK='sm_nd';
+function showNotifBanner(){if(!('Notification'in window)||Notification.permission==='granted'||sessionStorage.getItem(NK))return;setTimeout(()=>document.getElementById('notifBar')?.classList.add('show'),5000);}
+function dismissNotif(){document.getElementById('notifBar').classList.remove('show');sessionStorage.setItem(NK,'1');}
+async function askPush(){const p=await Notification.requestPermission();document.getElementById('notifBar').classList.remove('show');if(p==='granted'){try{await navigator.serviceWorker?.register('/static/sw.js');await fetch('/save-push-subscription/',{method:'POST',headers:{'Content-Type':'application/json','X-CSRFToken':getCookie('csrftoken')},body:JSON.stringify({permission:'granted'})});}catch(e){}showToast('Notifications enabled!');}}
+showNotifBanner();
+
+window.addEventListener('load',()=>{initRegToast();});
+</script>
+{% block extra_js %}{% endblock %}
+</body>
+</html>

@@ -1,0 +1,217 @@
+{% extends 'core/base.html' %}
+{% block title %}Share Your Testimony — {{ settings.church_name }}{% endblock %}
+{% block extra_css %}
+<style>
+.ts-wrap{max-width:680px;margin:0 auto;padding:60px 5% 80px;}
+.ts-hero{padding:70px 5% 50px;background:linear-gradient(160deg,var(--bg) 0%,var(--bg2) 55%,var(--bg) 100%);text-align:center;position:relative;overflow:hidden;}
+.ts-hero::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 60% 55% at 50% 50%,rgba(192,24,42,.1) 0%,transparent 65%);}
+.ts-hero-inner{position:relative;z-index:2;}
+.ts-form-card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:36px 32px;}
+/* Photo tabs */
+.ph-tabs{display:flex;border-bottom:1px solid var(--border);margin-bottom:0;}
+.ph-tab{flex:1;padding:10px 12px;text-align:center;cursor:pointer;font-size:.7rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);background:transparent;border:none;border-bottom:2px solid transparent;margin-bottom:-1px;transition:all .2s;font-family:'Poppins',sans-serif;}
+.ph-tab.active{color:var(--red2);border-bottom-color:var(--red);}
+.ph-pane{padding:16px;display:none;border:1px solid var(--border);border-top:none;border-radius:0 0 var(--radius-sm) var(--radius-sm);}
+.ph-pane.active{display:block;}
+.ph-drop{border:1.5px dashed rgba(192,24,42,.25);border-radius:var(--radius-sm);padding:24px;text-align:center;cursor:pointer;transition:all .25s;position:relative;background:rgba(192,24,42,.02);}
+.ph-drop:hover,.ph-drop.over{border-color:var(--red);background:rgba(192,24,42,.05);}
+.ph-drop input[type=file]{position:absolute;inset:0;opacity:0;cursor:pointer;z-index:2;}
+.ph-drop i{font-size:1.8rem;color:rgba(192,24,42,.3);display:block;margin-bottom:8px;}
+.ph-drop p{font-size:.78rem;color:var(--muted);line-height:1.5;}
+.ph-drop span{color:var(--red2);font-weight:600;}
+.ph-preview{display:none;text-align:center;padding:8px 0;}
+.ph-pv-ring{width:68px;height:68px;border-radius:50%;overflow:hidden;margin:0 auto 8px;border:2px solid var(--red);position:relative;cursor:pointer;}
+.ph-pv-ring img{width:100%;height:100%;object-fit:cover;display:block;}
+.ph-pv-rm{position:absolute;inset:0;background:rgba(0,0,0,.6);display:flex;align-items:center;justify-content:center;opacity:0;transition:opacity .2s;color:#fff;}
+.ph-pv-ring:hover .ph-pv-rm{opacity:1;}
+#urlPvWrap{display:none;text-align:center;margin-top:10px;}
+#urlPvImg{width:62px;height:62px;border-radius:50%;object-fit:cover;border:2px solid var(--red);}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+.wc{text-align:right;font-size:.62rem;color:var(--dim);margin-top:4px;}
+.wc.ok{color:var(--red2);}
+.ts-submit-btn{width:100%;background:var(--red);color:#fff;border:none;border-radius:var(--radius-sm);padding:15px;font-size:.85rem;font-weight:700;letter-spacing:.05em;display:flex;align-items:center;justify-content:center;gap:9px;transition:background .2s,transform .2s;margin-top:6px;font-family:'Poppins',sans-serif;}
+.ts-submit-btn:hover:not(:disabled){background:var(--red2);transform:translateY(-1px);}
+.ts-submit-btn:disabled{opacity:.6;cursor:not-allowed;}
+.ts-err{display:none;background:rgba(192,24,42,.08);border:1px solid rgba(192,24,42,.25);border-radius:var(--radius-sm);padding:10px 14px;margin-top:12px;font-size:.8rem;color:var(--red2);}
+.ts-success{display:none;text-align:center;padding:50px 20px;}
+.ts-success-ring{width:80px;height:80px;border-radius:50%;border:2px solid var(--red);display:flex;align-items:center;justify-content:center;margin:0 auto 18px;animation:pop .5s cubic-bezier(.17,.67,.36,1.35);}
+@keyframes pop{from{transform:scale(0);opacity:0}to{transform:scale(1);opacity:1}}
+.ts-success h3{font-size:1.5rem;font-weight:800;color:var(--white);margin-bottom:8px;}
+.ts-success p{font-size:.85rem;color:var(--muted);line-height:1.7;max-width:300px;margin:0 auto;}
+/* Gate */
+.ts-gate{text-align:center;padding:40px 0 20px;}
+.ts-gate-ring{width:72px;height:72px;border-radius:50%;border:1.5px solid var(--border2);display:flex;align-items:center;justify-content:center;margin:0 auto 18px;}
+.ts-gate-ring i{color:var(--red2);font-size:1.7rem;}
+.ts-gate h3{font-size:1.4rem;font-weight:800;color:var(--white);margin-bottom:8px;}
+.ts-gate p{font-size:.85rem;color:var(--muted);line-height:1.7;max-width:340px;margin:0 auto 24px;}
+@media(max-width:560px){.form-row{grid-template-columns:1fr;}.ts-form-card{padding:22px 18px;}}
+</style>
+{% endblock %}
+{% block content %}
+<section class="ts-hero">
+  <div class="ts-hero-inner">
+    <div class="breadcrumb" style="justify-content:center;"><a href="/">Home</a><i class="fas fa-chevron-right"></i><a href="/testimonies/">Testimonies</a><i class="fas fa-chevron-right"></i><span>Share</span></div>
+    <div class="eyebrow" style="justify-content:center;margin-bottom:10px;">YOUR STORY MATTERS</div>
+    <h1 class="sec-title reveal" style="font-size:clamp(1.8rem,5vw,3.2rem);">Share What <em>God Has Done</em></h1>
+    <p class="sec-sub reveal d1" style="margin:12px auto;max-width:480px;">"They overcame him by the blood of the Lamb and by the word of their testimony." — Revelation 12:11</p>
+  </div>
+</section>
+
+<section class="section">
+  <div class="ts-wrap">
+    <div class="ts-form-card reveal">
+
+      {% if user.is_authenticated %}
+      <!-- Member identity bar -->
+      <div style="display:flex;align-items:center;gap:12px;padding:12px 16px;background:rgba(192,24,42,.06);border:1px solid rgba(192,24,42,.15);border-radius:var(--radius-sm);margin-bottom:24px;">
+        {% with profile=user.profile %}{% if profile.photo_file %}
+          <img src="{{ profile.photo_file.url }}" alt="" style="width:36px;height:36px;border-radius:50%;object-fit:cover;border:1.5px solid rgba(192,24,42,.4);flex-shrink:0;">
+        {% else %}
+          <div style="width:36px;height:36px;border-radius:50%;background:rgba(192,24,42,.12);border:1.5px solid rgba(192,24,42,.25);display:flex;align-items:center;justify-content:center;font-weight:700;color:var(--red2);font-size:.9rem;flex-shrink:0;">{{ user.first_name|first|upper }}</div>
+        {% endif %}{% endwith %}
+        <div style="flex:1;min-width:0;">
+          <div style="font-size:.8rem;font-weight:700;color:var(--white);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">{{ user.get_full_name|default:user.username }}</div>
+          <div style="font-size:.68rem;color:var(--muted);">{{ user.email }}</div>
+        </div>
+        <a href="/dashboard/" style="font-size:.65rem;color:var(--red2);font-weight:700;letter-spacing:.06em;text-transform:uppercase;flex-shrink:0;">Dashboard →</a>
+      </div>
+
+      <form id="tsForm" enctype="multipart/form-data" novalidate>
+        {% csrf_token %}
+
+        <!-- Photo -->
+        <div class="fg" style="margin-bottom:20px;">
+          <label>Profile Photo (Optional)</label>
+          <div style="border:1px solid var(--border);border-radius:var(--radius-sm);overflow:hidden;">
+            <div class="ph-tabs">
+              <button type="button" class="ph-tab active" onclick="swTab('file')"><i class="fas fa-upload" style="margin-right:4px;"></i>Upload</button>
+              <button type="button" class="ph-tab" onclick="swTab('url')"><i class="fas fa-link" style="margin-right:4px;"></i>Paste URL</button>
+            </div>
+            <div class="ph-pane active" id="pane-file">
+              <div class="ph-preview" id="phPv">
+                <div class="ph-pv-ring" onclick="rmFile()"><img id="phPvImg" src="" alt=""><div class="ph-pv-rm"><i class="fas fa-times"></i></div></div>
+                <span style="font-size:.68rem;color:var(--muted);">Click to remove</span>
+              </div>
+              <div class="ph-drop" id="phDrop">
+                <input type="file" name="photo_file" id="phFile" accept="image/jpeg,image/png,image/webp,image/gif" onchange="handleFile(this)">
+                <i class="fas fa-image"></i>
+                <p>Drag &amp; drop or <span>click to browse</span><br><small style="font-size:.62rem;color:var(--dim);">JPG, PNG, WEBP — max 5 MB</small></p>
+              </div>
+            </div>
+            <div class="ph-pane" id="pane-url">
+              <div class="fg" style="margin-bottom:0;"><label>Image URL</label><input type="url" name="photo_url" id="phUrl" placeholder="https://example.com/photo.jpg" oninput="handleUrl(this.value)"></div>
+              <div id="urlPvWrap"><img id="urlPvImg" src="" alt=""></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="fg"><label>Full Name *</label><input type="text" name="name" required placeholder="e.g. Ngozi Obi" value="{{ user.get_full_name|default:'' }}"></div>
+          <div class="fg"><label>Location *</label><input type="text" name="location" required placeholder="e.g. Lagos, Nigeria" value="Worldwide"></div>
+        </div>
+
+        <div class="fg">
+          <label>Category *</label>
+          <select name="category" required>
+            <option value="Healing">Healing</option>
+            <option value="Financial Breakthrough">Financial Breakthrough</option>
+            <option value="Marriage &amp; Family">Marriage &amp; Family</option>
+            <option value="Salvation">Salvation</option>
+            <option value="Career &amp; Education">Career &amp; Education</option>
+            <option value="Deliverance">Deliverance</option>
+            <option value="General" selected>General</option>
+          </select>
+        </div>
+
+        <div class="fg">
+          <label>Your Testimony * <span style="font-weight:400;text-transform:none;letter-spacing:0;font-size:.65rem;color:var(--dim);margin-left:6px;">(min. 20 words)</span></label>
+          <textarea name="testimony" required placeholder="Share what God has done for you in detail. Your story will inspire thousands of believers..." style="min-height:160px;"></textarea>
+          <div class="wc" id="wc">0 words</div>
+        </div>
+
+        <button type="submit" class="ts-submit-btn" id="tsBtn"><i class="fas fa-paper-plane"></i>Submit My Testimony</button>
+        <p style="text-align:center;font-size:.65rem;color:var(--dim);margin-top:8px;line-height:1.5;">By submitting, you agree that your testimony may be published on our website and ministry materials. All testimonies are reviewed before publishing.</p>
+        <div class="ts-err" id="tsErr"></div>
+      </form>
+
+      <div class="ts-success" id="tsSuccess">
+        <div class="ts-success-ring"><i class="fas fa-hands-praying" style="font-size:1.8rem;color:var(--red2);"></i></div>
+        <h3>Praise God!</h3>
+        <p>Your testimony has been received and will be reviewed by our team before publishing. Thank you for sharing God's goodness!</p>
+        <div style="display:flex;gap:10px;justify-content:center;margin-top:20px;flex-wrap:wrap;">
+          <a href="/testimonies/" class="btn btn--outline btn--pill btn--sm"><i class="fas fa-book-open"></i>Read Testimonies</a>
+          <button onclick="resetForm()" class="btn btn--red btn--pill btn--sm"><i class="fas fa-plus"></i>Share Another</button>
+        </div>
+      </div>
+
+      {% else %}
+      <div class="ts-gate">
+        <div class="ts-gate-ring"><i class="fas fa-lock"></i></div>
+        <h3>Members Only</h3>
+        <p>To share your testimony, you need a free registered account with <strong style="color:var(--white);">{{ settings.church_name }}</strong>. It only takes a minute!</p>
+        <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-bottom:24px;">
+          <a href="/auth/register/?next=/testimonies/submit/" class="btn btn--red btn--pill"><i class="fas fa-user-plus"></i>Create Free Account</a>
+          <a href="/auth/login/?next=/testimonies/submit/" class="btn btn--outline btn--pill"><i class="fas fa-sign-in-alt"></i>Sign In</a>
+        </div>
+        <div style="border-left:3px solid var(--red);padding:14px 18px;background:rgba(192,24,42,.05);border-radius:0 var(--radius-sm) var(--radius-sm) 0;text-align:left;">
+          <p style="font-size:.85rem;font-style:italic;color:var(--text);line-height:1.65;margin-bottom:6px;">"And they overcame him by the blood of the Lamb and by the word of their testimony."</p>
+          <cite style="font-size:.6rem;color:var(--red2);letter-spacing:.14em;text-transform:uppercase;font-weight:700;">— Revelation 12:11</cite>
+        </div>
+      </div>
+      {% endif %}
+
+    </div>
+  </div>
+</section>
+{% endblock %}
+{% block extra_js %}
+<script>
+function swTab(t){
+  document.querySelectorAll('.ph-tab').forEach(b=>b.classList.remove('active'));
+  document.querySelectorAll('.ph-pane').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.ph-tab')[t==='file'?0:1].classList.add('active');
+  document.getElementById('pane-'+t).classList.add('active');
+}
+function handleFile(inp){
+  const f=inp.files[0];if(!f)return;
+  if(f.size>5*1024*1024){alert('Max 5MB');inp.value='';return;}
+  const r=new FileReader();r.onload=e=>{document.getElementById('phPvImg').src=e.target.result;document.getElementById('phPv').style.display='block';document.getElementById('phDrop').style.display='none';};r.readAsDataURL(f);
+}
+function rmFile(){document.getElementById('phFile').value='';document.getElementById('phPv').style.display='none';document.getElementById('phDrop').style.display='';}
+function handleUrl(u){const w=document.getElementById('urlPvWrap'),i=document.getElementById('urlPvImg');if(u.startsWith('http')){i.src=u;w.style.display='';i.onerror=()=>w.style.display='none';}else w.style.display='none';}
+const dz=document.getElementById('phDrop');
+if(dz){
+  dz.addEventListener('dragover',e=>{e.preventDefault();dz.classList.add('over');});
+  dz.addEventListener('dragleave',()=>dz.classList.remove('over'));
+  dz.addEventListener('drop',e=>{e.preventDefault();dz.classList.remove('over');const f=e.dataTransfer.files[0];if(f&&f.type.startsWith('image/')){const dt=new DataTransfer();dt.items.add(f);const inp=document.getElementById('phFile');inp.files=dt.files;handleFile(inp);}});
+}
+const ta=document.querySelector('textarea[name=testimony]'),wc=document.getElementById('wc');
+if(ta)ta.addEventListener('input',()=>{const w=ta.value.trim().split(/\s+/).filter(x=>x).length;wc.textContent=`${w} word${w!==1?'s':''}`;wc.classList.toggle('ok',w>=20);});
+const tsForm=document.getElementById('tsForm');
+if(tsForm){
+  tsForm.addEventListener('submit',async e=>{
+    e.preventDefault();
+    const btn=document.getElementById('tsBtn'),err=document.getElementById('tsErr');
+    err.style.display='none';
+    const words=tsForm.testimony?.value.trim().split(/\s+/).filter(w=>w).length||0;
+    if(!tsForm.name?.value.trim()){showErr('Please enter your full name.');return;}
+    if(!tsForm.location?.value.trim()){showErr('Please enter your location.');return;}
+    if(words<20){showErr(`Too short (${words} words). Please write at least 20 words.`);return;}
+    btn.disabled=true;btn.innerHTML='<i class="fas fa-spinner fa-spin"></i> Submitting...';
+    const fd=new FormData(tsForm);
+    const fileActive=document.getElementById('pane-file').classList.contains('active');
+    if(!fileActive)fd.delete('photo_file');
+    try{
+      const res=await fetch('/submit-testimony/',{method:'POST',body:fd});
+      const data=await res.json();
+      if(data.success){tsForm.style.display='none';document.getElementById('tsSuccess').style.display='block';}
+      else if(data.auth_required){window.location.href=data.login_url||'/auth/login/?next=/testimonies/submit/';}
+      else showErr(data.message||'Something went wrong.');
+    }catch{showErr('Network error. Check your connection.');}
+    finally{btn.disabled=false;btn.innerHTML='<i class="fas fa-paper-plane"></i> Submit My Testimony';}
+  });
+}
+function showErr(m){const e=document.getElementById('tsErr');e.textContent=m;e.style.display='block';e.scrollIntoView({behavior:'smooth',block:'nearest'});}
+function resetForm(){const f=document.getElementById('tsForm');if(!f)return;f.reset();f.style.display='';document.getElementById('tsSuccess').style.display='none';document.getElementById('phPv').style.display='none';document.getElementById('phDrop').style.display='';document.getElementById('urlPvWrap').style.display='none';document.getElementById('tsErr').style.display='none';if(wc){wc.textContent='0 words';wc.classList.remove('ok');}}
+</script>
+{% endblock %}
