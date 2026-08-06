@@ -3,18 +3,17 @@ from pathlib import Path
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-# ── Security ─────────────────────────────────────────────────
 SECRET_KEY = os.environ.get('SECRET_KEY', 'church-site-dev-key-change-in-production')
-DEBUG = os.environ.get('DEBUG', 'True') == 'True'
+DEBUG = os.environ.get('DEBUG', 'False') == 'True'
 ALLOWED_HOSTS = ['*']
 CSRF_TRUSTED_ORIGINS = [
+    'https://glam-church-site.onrender.com',
+    'https://*.onrender.com',
     'https://*.railway.app',
-    'https://*.up.railway.app',
     'http://127.0.0.1:8000',
     'http://localhost:8000',
 ]
 
-# ── Apps ──────────────────────────────────────────────────────
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
@@ -25,10 +24,9 @@ INSTALLED_APPS = [
     'core',
 ]
 
-# ── Middleware (WhiteNoise for static files on Railway) ───────
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
-    'whitenoise.middleware.WhiteNoiseMiddleware',   # ← serves static files
+    'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -53,7 +51,6 @@ TEMPLATES = [{
 
 WSGI_APPLICATION = 'church_site.wsgi.application'
 
-# ── Database ──────────────────────────────────────────────────
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
@@ -61,43 +58,30 @@ DATABASES = {
     }
 }
 
-# ── Password validation ───────────────────────────────────────
 AUTH_PASSWORD_VALIDATORS = [
     {'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator'},
     {'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator'},
 ]
 
-# ── Localisation ──────────────────────────────────────────────
 LANGUAGE_CODE = 'en-us'
 TIME_ZONE     = 'Africa/Lagos'
 USE_I18N      = True
 USE_TZ        = True
 
-# ── Static & Media files ──────────────────────────────────────
 STATIC_URL  = '/static/'
 STATICFILES_DIRS = [BASE_DIR / 'static']
 STATIC_ROOT = BASE_DIR / 'staticfiles'
-
-# WhiteNoise compressed static files for Railway
-STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+# Use simple storage — avoids manifest errors on Render free plan
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedStaticFilesStorage'
 
 MEDIA_URL  = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-# ── Auth redirects ────────────────────────────────────────────
 LOGIN_URL           = '/auth/login/'
 LOGIN_REDIRECT_URL  = '/dashboard/'
 LOGOUT_REDIRECT_URL = '/'
 
-# ── Email ─────────────────────────────────────────────────────
-EMAIL_BACKEND   = 'django.core.mail.backends.console.EmailBackend'
+EMAIL_BACKEND      = 'django.core.mail.backends.console.EmailBackend'
 DEFAULT_FROM_EMAIL = 'Fountain of Grace Church <no-reply@fountainofgrace.org>'
-# To enable real email, set these in Railway environment variables:
-# EMAIL_BACKEND     = 'django.core.mail.backends.smtp.EmailBackend'
-# EMAIL_HOST        = 'smtp.gmail.com'
-# EMAIL_PORT        = 587
-# EMAIL_USE_TLS     = True
-# EMAIL_HOST_USER   = os.environ.get('EMAIL_HOST_USER', '')
-# EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_HOST_PASSWORD', '')
