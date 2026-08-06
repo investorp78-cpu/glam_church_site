@@ -3,13 +3,13 @@ from pathlib import Path
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-SECRET_KEY = os.environ.get('SECRET_KEY', 'church-site-dev-key-change-in-production')
+SECRET_KEY = os.environ.get('SECRET_KEY', 'glam-church-fallback-key-2026')
 DEBUG = os.environ.get('DEBUG', 'False') == 'True'
 ALLOWED_HOSTS = ['*']
+
 CSRF_TRUSTED_ORIGINS = [
     'https://glam-church-site.onrender.com',
     'https://*.onrender.com',
-    'https://*.railway.app',
     'http://127.0.0.1:8000',
     'http://localhost:8000',
 ]
@@ -64,24 +64,25 @@ AUTH_PASSWORD_VALIDATORS = [
 ]
 
 LANGUAGE_CODE = 'en-us'
-TIME_ZONE     = 'Africa/Lagos'
-USE_I18N      = True
-USE_TZ        = True
+TIME_ZONE = 'Africa/Lagos'
+USE_I18N = True
+USE_TZ = True
 
-STATIC_URL  = '/static/'
+STATIC_URL = '/static/'
 STATICFILES_DIRS = [BASE_DIR / 'static']
 STATIC_ROOT = BASE_DIR / 'staticfiles'
-# Use simple storage — avoids manifest errors on Render free plan
-STATICFILES_STORAGE = 'whitenoise.storage.CompressedStaticFilesStorage'
 
-MEDIA_URL  = '/media/'
+# Use simplest possible static files storage — no manifest, no hashing
+STATICFILES_STORAGE = 'django.contrib.staticfiles.storage.StaticFilesStorage'
+
+MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-LOGIN_URL           = '/auth/login/'
-LOGIN_REDIRECT_URL  = '/dashboard/'
+LOGIN_URL = '/auth/login/'
+LOGIN_REDIRECT_URL = '/dashboard/'
 LOGOUT_REDIRECT_URL = '/'
 
-EMAIL_BACKEND      = 'django.core.mail.backends.console.EmailBackend'
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 DEFAULT_FROM_EMAIL = 'Fountain of Grace Church <no-reply@fountainofgrace.org>'

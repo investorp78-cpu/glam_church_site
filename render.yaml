@@ -1,0 +1,11 @@
+services:
+  - type: web
+    name: glam_church_site
+    env: python
+    buildCommand: "pip install -r requirements.txt && python manage.py collectstatic --noinput && python manage.py migrate && python manage.py shell -c \"from django.contrib.auth.models import User; User.objects.filter(username='admin').exists() or User.objects.create_superuser('admin', 'admin@church.com', 'Admin1234!')\""
+    startCommand: "gunicorn church_site.wsgi"
+    envVars:
+      - key: SECRET_KEY
+        value: glam-church-secret-key-2026-xyz
+      - key: DEBUG
+        value: "False"
