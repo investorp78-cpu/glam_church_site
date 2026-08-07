@@ -5,7 +5,7 @@ from .models import *
 from .email_utils import notify_new_event, notify_new_announcement
 import threading
 
-admin.site.site_header  = "✦ Church — Admin Panel"
+admin.site.site_header  = "✦ Fountain of Grace — Admin Panel"
 admin.site.site_title   = "Church Admin"
 admin.site.index_title  = "Welcome to the Church Management Dashboard"
 
@@ -219,7 +219,7 @@ class FlyerAdmin(admin.ModelAdmin):
 # ── Testimonies ───────────────────────────────────────────────
 @admin.register(Testimony)
 class TestimonyAdmin(admin.ModelAdmin):
-    list_display  = ['name', 'location', 'category', 'date', 'is_approved', 'is_featured', '_photo']
+    list_display  = ['name', 'title', 'category', 'date', 'is_approved', 'is_featured', '_photo']
     list_editable = ['is_approved', 'is_featured']
     list_filter   = ['is_approved', 'is_featured', 'category']
     search_fields = ['name', 'testimony', 'location']
@@ -227,7 +227,7 @@ class TestimonyAdmin(admin.ModelAdmin):
     fieldsets = (
         ('✍️ Testimony Content', {
             'description': 'Fill in the testimony details below. Tick "Approved" to make it visible on the website.',
-            'fields': ('name', 'location', 'category', 'testimony'),
+            'fields': ('name', 'location', 'category', 'title', 'testimony'),
         }),
         ('📸 Photo', {
             'description': 'Upload a photo OR paste a URL. Leave blank to use the member initials.',

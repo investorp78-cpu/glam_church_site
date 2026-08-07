@@ -72,8 +72,9 @@
       {% for t in testimonies %}
       <a href="/testimony/{{ t.pk }}/" class="testi-card-full reveal d{{ forloop.counter }}" data-cat="{{ t.category }}" >
         <div class="tcf-top"><div class="tcf-qq">"</div><div class="tcf-cat">{{ t.category }}</div></div>
+        {% if t.title %}<div class="tcf-title">{{ t.title }}</div>{% endif %}
         <div class="tcf-excerpt">{{ t.testimony }}</div>
-        <div class="tcf-read-more">READ MORE <i class="fas fa-long-arrow-alt-right"></i></div>
+        <a href="/testimony/{{ t.pk }}/" class="tcf-read-more">READ MORE <i class="fas fa-long-arrow-alt-right"></i></a>
         <div class="tcf-author">
           <div class="tcf-av">
             {% if t.photo_file %}<img src="{{ t.photo_file.url }}" alt="{{ t.name }}">

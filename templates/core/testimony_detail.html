@@ -46,7 +46,7 @@
 
     <div class="td-cat reveal d1"><i class="fas fa-hands-praying"></i>{{ testimony.category }}</div>
 
-    <h1 class="td-title reveal d2">{{ testimony.testimony|truncatechars:80 }}</h1>
+    <h1 class="td-title reveal d2">{% if testimony.title %}{{ testimony.title }}{% else %}{{ testimony.testimony|truncatechars:80 }}{% endif %}</h1>
 
     <div class="td-author reveal d3">
       <div class="td-av">

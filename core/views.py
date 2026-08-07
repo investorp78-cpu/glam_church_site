@@ -17,6 +17,7 @@ def get_base_ctx():
     return {
         'settings':      s,
         'announcements': Announcement.objects.filter(is_active=True)[:5],
+        'service_times': ServiceTime.objects.all(),
         'bg_hero':       s.get_bg('hero'),
         'bg_about':      s.get_bg('about'),
         'bg_sermons':    s.get_bg('sermons'),
@@ -118,13 +119,14 @@ def submit_testimony(request):
         })
     name      = request.POST.get('name', '').strip() or request.user.get_full_name() or request.user.username
     location  = request.POST.get('location', 'Worldwide').strip()
+    title     = request.POST.get('title', '').strip()
     testimony = request.POST.get('testimony', '').strip()
     category  = request.POST.get('category', 'General')
     photo_url = request.POST.get('photo_url', '').strip()
     if not testimony:
         return JsonResponse({'success': False, 'message': 'Please write your testimony.'})
     profile = getattr(request.user, 'profile', None)
-    obj = Testimony(name=name, location=location, testimony=testimony,
+    obj = Testimony(name=name, location=location, title=title, testimony=testimony,
                     category=category, photo_url=photo_url, member=profile)
     if 'photo_file' in request.FILES:
         obj.photo_file = request.FILES['photo_file']

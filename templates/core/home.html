@@ -315,6 +315,7 @@
           <div class="testi-qq">"</div>
           <div class="testi-cat-badge">{{ t.category }}</div>
         </div>
+        {% if t.title %}<div class="testi-title">{{ t.title }}</div>{% endif %}
         <div class="testi-excerpt">{{ t.testimony }}</div>
         <a href="/testimony/{{ t.pk }}/" class="testi-read-more">READ MORE <i class="fas fa-arrow-down"></i></a>
         <div class="testi-author">
