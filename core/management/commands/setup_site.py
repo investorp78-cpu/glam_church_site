@@ -10,11 +10,17 @@ class Command(BaseCommand):
         # Create admin if not exists
         if not User.objects.filter(is_superuser=True).exists():
             User.objects.create_superuser('admin', 'admin@church.com', 'Admin1234!')
-            self.stdout.write(self.style.SUCCESS('Admin user created'))
+            self.stdout.write(self.style.SUCCESS('Admin user created: admin / Admin1234!'))
 
-        # Ensure settings record exists
+        # Ensure settings exist with correct church name
         s = ChurchSettings.get_settings()
-        self.stdout.write(self.style.SUCCESS(f'Settings OK: {s.church_name}'))
+        if s.church_name == 'Fountain of Grace Church':
+            s.church_name = 'Gospel Life Apostolic Family'
+            s.tagline = 'Where Faith Meets Destiny'
+            s.denomination = 'Apostolic'
+            s.save()
+            self.stdout.write(self.style.SUCCESS('Church name updated'))
+        self.stdout.write(self.style.SUCCESS(f'Church: {s.church_name}'))
 
         # Seed default service times if none exist
         if not ServiceTime.objects.exists():
