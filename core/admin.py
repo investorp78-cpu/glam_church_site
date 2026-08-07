@@ -5,7 +5,7 @@ from .models import *
 from .email_utils import notify_new_event, notify_new_announcement
 import threading
 
-admin.site.site_header  = "✦ Fountain of Grace — Admin Panel"
+admin.site.site_header  = "✦ Gospel Life Apostolic Family Assembly — Admin Panel"
 admin.site.site_title   = "Church Admin"
 admin.site.index_title  = "Welcome to the Church Management Dashboard"
 
