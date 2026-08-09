@@ -1,10 +1,31 @@
 from django.db import models
 from django.utils import timezone
 from django.contrib.auth.models import User
+import os
+
+# Use CloudinaryField if cloudinary is available, else fallback to ImageField
+try:
+    from cloudinary.models import CloudinaryField as _CloudinaryField
+    def ChurchImageField(folder='church', **kwargs):
+        kwargs.pop('upload_to', None)
+        kwargs.pop('null', None)
+        kwargs.pop('blank', None)
+        kwargs.pop('verbose_name', None)
+        kwargs.pop('help_text', None)
+        kwargs.pop('max_length', None)
+        return _CloudinaryField(folder, blank=True, null=True, **kwargs)
+    USING_CLOUDINARY = True
+except ImportError:
+    def ChurchImageField(folder='church', **kwargs):
+        kwargs.setdefault('blank', True)
+        kwargs.setdefault('null', True)
+        upload_to = kwargs.pop('upload_to', folder + '/')
+        return models.ImageField(upload_to=upload_to, **kwargs)
+    USING_CLOUDINARY = False
 
 class ChurchSettings(models.Model):
     church_name=models.CharField(max_length=200,default="Fountain of Grace Church")
-    logo_file=models.ImageField(upload_to='logo/',blank=True,null=True,verbose_name="Church Logo — Upload File",help_text="Upload your church logo PNG/SVG (shown in navbar)")
+    logo_file=ChurchImageField(folder='logo',verbose_name="Church Logo — Upload File",help_text="Upload your church logo PNG/SVG (shown in navbar)")
     logo_url=models.URLField(blank=True,verbose_name="Church Logo — URL",help_text="Or paste a URL to your logo image")
     tagline=models.CharField(max_length=300,default="Where Faith Meets Destiny")
     mission_statement=models.TextField(default="To raise a generation of passionate worshippers who impact their world with the love of Christ.")
@@ -26,25 +47,31 @@ class ChurchSettings(models.Model):
     livestream_embed_url=models.URLField(blank=True,verbose_name="Livestream Embed URL",help_text="e.g. https://www.youtube.com/embed/VIDEOID")
     livestream_channel_url=models.URLField(blank=True,default="https://youtube.com")
     is_live_now=models.BooleanField(default=False,verbose_name="Live right now?")
-    bg_hero_file=models.ImageField(upload_to='backgrounds/',blank=True,null=True,verbose_name="Hero BG — Upload")
+    bg_hero_file=ChurchImageField(folder='backgrounds',verbose_name="Hero BG — Upload")
     bg_hero_url=models.URLField(blank=True,verbose_name="Hero BG — URL",default="https://images.unsplash.com/photo-1604580864964-0462f5d5b1a8?w=1800&q=80")
-    bg_about_file=models.ImageField(upload_to='backgrounds/',blank=True,null=True,verbose_name="About BG — Upload")
+    bg_about_file=ChurchImageField(folder='backgrounds',verbose_name="About BG — Upload")
     bg_about_url=models.URLField(blank=True,verbose_name="About BG — URL")
-    bg_sermons_file=models.ImageField(upload_to='backgrounds/',blank=True,null=True,verbose_name="Sermons BG — Upload")
+    bg_sermons_file=ChurchImageField(folder='backgrounds',verbose_name="Sermons BG — Upload")
     bg_sermons_url=models.URLField(blank=True,verbose_name="Sermons BG — URL")
-    bg_events_file=models.ImageField(upload_to='backgrounds/',blank=True,null=True,verbose_name="Events BG — Upload")
+    bg_events_file=ChurchImageField(folder='backgrounds',verbose_name="Events BG — Upload")
     bg_events_url=models.URLField(blank=True,verbose_name="Events BG — URL",default="https://images.unsplash.com/photo-1529156069898-49953e39b3ac?w=1400&q=70")
-    bg_ministries_file=models.ImageField(upload_to='backgrounds/',blank=True,null=True,verbose_name="Ministries BG — Upload")
+    bg_ministries_file=ChurchImageField(folder='backgrounds',verbose_name="Ministries BG — Upload")
     bg_ministries_url=models.URLField(blank=True,verbose_name="Ministries BG — URL")
-    bg_testimonies_file=models.ImageField(upload_to='backgrounds/',blank=True,null=True,verbose_name="Testimonies BG — Upload")
+    bg_testimonies_file=ChurchImageField(folder='backgrounds',verbose_name="Testimonies BG — Upload")
     bg_testimonies_url=models.URLField(blank=True,verbose_name="Testimonies BG — URL")
-    bg_give_file=models.ImageField(upload_to='backgrounds/',blank=True,null=True,verbose_name="Give CTA BG — Upload")
+    bg_give_file=ChurchImageField(folder='backgrounds',verbose_name="Give CTA BG — Upload")
     bg_give_url=models.URLField(blank=True,verbose_name="Give CTA BG — URL",default="https://images.unsplash.com/photo-1470071459604-3b5ec3a7fe05?w=1400&q=70")
     class Meta: verbose_name="Church Settings"; verbose_name_plural="Church Settings"
     def __str__(self): return self.church_name
     def get_bg(self,section):
-        f=getattr(self,f'bg_{section}_file',None); u=getattr(self,f'bg_{section}_url','')
-        if f and f.name: return f.url
+        f=getattr(self,f'bg_{section}_file',None)
+        u=getattr(self,f'bg_{section}_url','')
+        if f:
+            try:
+                url = f.url if hasattr(f,'url') else str(f)
+                if url and 'cloudinary' in url: return url
+                if url and not url.startswith('/'): return url
+            except: pass
         return u or ''
     @classmethod
     def get_settings(cls):
@@ -82,7 +109,7 @@ class Leadership(models.Model):
     name=models.CharField(max_length=200)
     title=models.CharField(max_length=100)
     bio=models.TextField()
-    photo_file=models.ImageField(upload_to='leadership/',blank=True,null=True)
+    photo_file=ChurchImageField(folder='leadership')
     photo_url=models.URLField(blank=True)
     order=models.PositiveIntegerField(default=0)
     is_senior_pastor=models.BooleanField(default=False)
@@ -93,7 +120,7 @@ class Ministry(models.Model):
     name=models.CharField(max_length=100)
     description=models.TextField()
     icon_class=models.CharField(max_length=60,default="fas fa-cross",help_text="Font Awesome class e.g. fas fa-fire")
-    bg_file=models.ImageField(upload_to='ministries/',blank=True,null=True,verbose_name="Card BG — Upload")
+    bg_file=ChurchImageField(folder='ministries',verbose_name="Card BG — Upload")
     bg_url=models.URLField(blank=True,verbose_name="Card BG — URL")
     leader_name=models.CharField(max_length=100,blank=True)
     meeting_time=models.CharField(max_length=100,blank=True)
@@ -124,7 +151,7 @@ class Event(models.Model):
     end_date=models.DateField(null=True,blank=True)
     time=models.TimeField(null=True,blank=True)
     location=models.CharField(max_length=200,blank=True,default="Church Auditorium")
-    image_file=models.ImageField(upload_to='events/',blank=True,null=True,verbose_name="Event Image — Upload")
+    image_file=ChurchImageField(folder='events',verbose_name="Event Image — Upload")
     image_url=models.URLField(blank=True,verbose_name="Event Image — URL")
     is_featured=models.BooleanField(default=False)
     registration_link=models.URLField(blank=True)
@@ -133,7 +160,11 @@ class Event(models.Model):
     def __str__(self): return self.title
     def is_upcoming(self): return self.date >= timezone.now().date()
     def get_image(self):
-        if self.image_file and self.image_file.name: return self.image_file.url
+        if self.image_file:
+            try:
+                url = self.image_file.url if hasattr(self.image_file,'url') else str(self.image_file)
+                if url and ('cloudinary' in url or not url.startswith('/')): return url
+            except: pass
         return self.image_url or ''
 
 class Announcement(models.Model):
@@ -154,7 +185,7 @@ class Testimony(models.Model):
     title=models.CharField(max_length=200,blank=True,verbose_name="Testimony Title",help_text="Short headline e.g. 'God healed my fibroid after 3 years!'")
     testimony=models.TextField(verbose_name="Full Testimony Text")
     category=models.CharField(max_length=50,choices=CATEGORY_CHOICES,default='General')
-    photo_file=models.ImageField(upload_to='testimonies/',blank=True,null=True)
+    photo_file=ChurchImageField(folder='testimonies')
     photo_url=models.URLField(blank=True)
     date=models.DateField(auto_now_add=True)
     is_approved=models.BooleanField(default=False,help_text="Tick to show on website")
@@ -164,7 +195,7 @@ class Testimony(models.Model):
 
 class Flyer(models.Model):
     title=models.CharField(max_length=200)
-    image_file=models.ImageField(upload_to='flyers/',blank=True,null=True,verbose_name="Flyer Image — Upload",help_text="Upload JPG/PNG/WEBP poster")
+    image_file=ChurchImageField(folder='flyers',verbose_name="Flyer Image — Upload",help_text="Upload JPG/PNG/WEBP poster")
     image_url=models.URLField(blank=True,verbose_name="Flyer Image — URL",help_text="Or paste an online image URL")
     link_url=models.URLField(blank=True,help_text="Optional — clicking opens this URL")
     caption=models.CharField(max_length=300,blank=True)
@@ -174,7 +205,11 @@ class Flyer(models.Model):
     class Meta: ordering=['order','-date_posted']; verbose_name="Church Flyer / Poster"; verbose_name_plural="Church Flyers / Posters"
     def __str__(self): return self.title
     def get_image(self):
-        if self.image_file and self.image_file.name: return self.image_file.url
+        if self.image_file:
+            try:
+                url = self.image_file.url if hasattr(self.image_file,'url') else str(self.image_file)
+                if url and ('cloudinary' in url or not url.startswith('/')): return url
+            except: pass
         return self.image_url or ''
 
 class MemberProfile(models.Model):
@@ -186,7 +221,7 @@ class MemberProfile(models.Model):
     date_of_birth=models.DateField(null=True,blank=True)
     gender=models.CharField(max_length=10,choices=GENDER_CHOICES,blank=True)
     membership_status=models.CharField(max_length=20,choices=STATUS_CHOICES,default='new')
-    photo_file=models.ImageField(upload_to='members/',blank=True,null=True)
+    photo_file=ChurchImageField(folder='members')
     ministry_interest=models.CharField(max_length=200,blank=True)
     notify_events=models.BooleanField(default=True,verbose_name="Notify: New Events")
     notify_sermons=models.BooleanField(default=True,verbose_name="Notify: New Sermons")

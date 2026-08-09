@@ -5,7 +5,7 @@ from .models import *
 from .email_utils import notify_new_event, notify_new_announcement
 import threading
 
-admin.site.site_header  = "✦ Gospel Life Apostolic Family Assemby — Admin Panel"
+admin.site.site_header  = "✦ Fountain of Grace — Admin Panel"
 admin.site.site_title   = "Church Admin"
 admin.site.index_title  = "Welcome to the Church Management Dashboard"
 
@@ -19,7 +19,7 @@ class ChurchSettingsAdmin(admin.ModelAdmin):
             'fields': ('church_name', 'tagline', 'denomination', 'founding_year')
         }),
         ('🖼️ Church Logo', {
-            'description': 'Upload your church logo (shown in the navbar). Upload a file OR paste a URL.',
+            'description': '⚡ RECOMMENDED: Paste a URL from Cloudinary or Google Drive into the URL field below for permanent storage. File upload also works if Cloudinary is configured.',
             'fields': ('logo_file', 'logo_url')
         }),
         ('📖 Mission & Vision', {
@@ -201,7 +201,7 @@ class FlyerAdmin(admin.ModelAdmin):
     fieldsets = (
         ('Flyer Details', {'fields': ('title', 'caption', 'is_active', 'order')}),
         ('📸 Image', {
-            'description': 'Upload a file OR paste a URL. File upload takes priority over URL.',
+            'description': '⚡ RECOMMENDED: Upload file (saved to Cloudinary permanently) OR paste a Cloudinary/image URL below.',
             'fields': ('image_file', 'image_url', '_preview'),
         }),
         ('🔗 Click-through Link (optional)', {'fields': ('link_url',)}),
