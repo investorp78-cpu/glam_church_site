@@ -3,25 +3,46 @@ from django.utils import timezone
 from django.contrib.auth.models import User
 import os
 
-# Use CloudinaryField if cloudinary is available, else fallback to ImageField
-try:
-    from cloudinary.models import CloudinaryField as _CloudinaryField
-    def ChurchImageField(folder='church', **kwargs):
+# Configure Cloudinary and use CloudinaryField ONLY if cloud_name env var is set
+_CLOUD_NAME = os.environ.get('CLOUDINARY_CLOUD_NAME', '')
+_API_KEY     = os.environ.get('CLOUDINARY_API_KEY', '')
+_API_SECRET  = os.environ.get('CLOUDINARY_API_SECRET', '')
+
+USING_CLOUDINARY = False
+if _CLOUD_NAME and _API_KEY and _API_SECRET:
+    try:
+        import cloudinary
+        cloudinary.config(
+            cloud_name=_CLOUD_NAME,
+            api_key=_API_KEY,
+            api_secret=_API_SECRET,
+            secure=True,
+        )
+        from cloudinary.models import CloudinaryField as _CloudinaryField
+        USING_CLOUDINARY = True
+    except Exception:
+        USING_CLOUDINARY = False
+
+def ChurchImageField(folder='church', **kwargs):
+    # Strip kwargs that ImageField accepts but CloudinaryField doesn't and vice versa
+    vn = kwargs.pop('verbose_name', None)
+    ht = kwargs.pop('help_text', None)
+    if USING_CLOUDINARY:
         kwargs.pop('upload_to', None)
         kwargs.pop('null', None)
         kwargs.pop('blank', None)
-        kwargs.pop('verbose_name', None)
-        kwargs.pop('help_text', None)
         kwargs.pop('max_length', None)
-        return _CloudinaryField(folder, blank=True, null=True, **kwargs)
-    USING_CLOUDINARY = True
-except ImportError:
-    def ChurchImageField(folder='church', **kwargs):
+        f = _CloudinaryField(folder, blank=True, null=True, **kwargs)
+        if vn: f.verbose_name = vn
+        if ht: f.help_text = ht
+        return f
+    else:
         kwargs.setdefault('blank', True)
         kwargs.setdefault('null', True)
         upload_to = kwargs.pop('upload_to', folder + '/')
+        if vn: kwargs['verbose_name'] = vn
+        if ht: kwargs['help_text'] = ht
         return models.ImageField(upload_to=upload_to, **kwargs)
-    USING_CLOUDINARY = False
 
 class ChurchSettings(models.Model):
     church_name=models.CharField(max_length=200,default="Fountain of Grace Church")
