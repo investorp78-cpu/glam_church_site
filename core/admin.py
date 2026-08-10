@@ -1,81 +1,93 @@
 from django.contrib import admin
 from django.utils.html import format_html
+from django.utils.safestring import mark_safe
 from django.contrib import messages as adm_msg
 from .models import *
 from .email_utils import notify_new_event, notify_new_announcement
 import threading
 
 admin.site.site_header  = "✦ Gospel Life Apostolic Family Assembly — Admin Panel"
-admin.site.site_title   = "Church Admin"
-admin.site.index_title  = "Welcome to the Church Management Dashboard"
+admin.site.site_title   = "GLAFA Admin"
+admin.site.index_title  = "Welcome to the Gospel Life Apostolic Family Assembly Dashboard"
 
 
 # ── Church Settings ──────────────────────────────────────────
 @admin.register(ChurchSettings)
 class ChurchSettingsAdmin(admin.ModelAdmin):
-    fieldsets = (
-        ('🏠 Church Identity', {
-            'description': 'Basic info shown across the website.',
-            'fields': ('church_name', 'tagline', 'denomination', 'founding_year')
-        }),
-        ('🖼️ Church Logo', {
-            'description': '⚡ RECOMMENDED: Paste a URL from Cloudinary or Google Drive into the URL field below for permanent storage. File upload also works if Cloudinary is configured.',
-            'fields': ('logo_file', 'logo_url')
-        }),
-        ('📖 Mission & Vision', {
-            'fields': ('mission_statement', 'vision_statement')
-        }),
-        ('📜 Hero Bible Verse', {
-            'description': 'Shown on the homepage hero section.',
-            'fields': ('hero_bible_verse', 'hero_bible_text')
-        }),
-        ('📺 Livestream', {
-            'description': 'Set the YouTube embed URL for the /live/ page. Tick "Live right now?" during active services to show the pulsing LIVE badge.',
-            'fields': ('livestream_embed_url', 'livestream_channel_url', 'is_live_now')
-        }),
-        ('📞 Contact Information', {
-            'fields': ('address', 'phone_primary', 'phone_secondary', 'whatsapp', 'email')
-        }),
-        ('📱 Social Media Links', {
-            'fields': ('facebook_url', 'instagram_url', 'youtube_url', 'twitter_url')
-        }),
-        ('🗺️ Google Maps', {
-            'description': 'Paste the full embed code from Google Maps (the &lt;iframe&gt; tag).',
-            'fields': ('google_maps_embed',)
-        }),
-        ('🖼️ Background Image — Hero (Homepage)', {
-            'description': 'The main full-screen background image on the homepage.',
-            'fields': ('bg_hero_file', 'bg_hero_url')
-        }),
-        ('🖼️ Background Image — About Section', {
-            'fields': ('bg_about_file', 'bg_about_url')
-        }),
-        ('🖼️ Background Image — Sermons Section', {
-            'fields': ('bg_sermons_file', 'bg_sermons_url')
-        }),
-        ('🖼️ Background Image — Events Section', {
-            'fields': ('bg_events_file', 'bg_events_url')
-        }),
-        ('🖼️ Background Image — Ministries Section', {
-            'fields': ('bg_ministries_file', 'bg_ministries_url')
-        }),
-        ('🖼️ Background Image — Testimonies Section', {
-            'fields': ('bg_testimonies_file', 'bg_testimonies_url')
-        }),
-        ('🖼️ Background Image — Give / CTA Banner', {
-            'fields': ('bg_give_file', 'bg_give_url')
-        }),
-    )
+
+    def _img_help(self):
+        return mark_safe(
+            '<div style="margin:8px 0;padding:12px 14px;background:rgba(192,24,42,.06);'
+            'border:1px solid rgba(192,24,42,.2);border-radius:8px;">'
+            '<p style="font-size:.72rem;font-weight:700;color:#e8edf8;margin:0 0 8px;">'
+            '&#128205; Upload your image to one of these services, copy the direct URL, paste in the URL field:</p>'
+            '<div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:8px;">'
+            '<a href="https://imgbb.com" target="_blank" style="background:#c0182a;color:#fff;'
+            'padding:6px 12px;border-radius:6px;font-size:.7rem;font-weight:700;text-decoration:none;">'
+            '&#128247; ImgBB</a>'
+            '<a href="https://console.cloudinary.com/console/media_library" target="_blank" '
+            'style="background:#3448c5;color:#fff;padding:6px 12px;border-radius:6px;'
+            'font-size:.7rem;font-weight:700;text-decoration:none;">&#9729; Cloudinary</a>'
+            '<a href="https://drive.google.com" target="_blank" style="background:#1a73e8;color:#fff;'
+            'padding:6px 12px;border-radius:6px;font-size:.7rem;font-weight:700;text-decoration:none;">'
+            '&#128193; Google Drive</a>'
+            '</div>'
+            '<small style="color:#7a8aaa;font-size:.63rem;line-height:1.6;display:block;">'
+            '<b style="color:#e8edf8;">ImgBB:</b> Upload image &#8594; copy "Direct link" &nbsp;|&nbsp;'
+            '<b style="color:#e8edf8;">Cloudinary:</b> Upload &#8594; click image &#8594; copy URL &nbsp;|&nbsp;'
+            '<b style="color:#e8edf8;">Google Drive:</b> Upload &#8594; Share (Anyone with link) &#8594; '
+            'change URL to: drive.google.com/uc?export=view&amp;id=YOUR_FILE_ID'
+            '</small></div>'
+        )
+
+    def get_fieldsets(self, request, obj=None):
+        h = self._img_help()
+        return [
+            ('&#127968; Church Identity', {
+                'description': 'Basic info shown across the entire website.',
+                'fields': ('church_name', 'tagline', 'denomination', 'founding_year')
+            }),
+            ('&#128444; Church Logo', {
+                'description': h,
+                'fields': ('logo_url', 'logo_file')
+            }),
+            ('&#128214; Mission & Vision', {
+                'fields': ('mission_statement', 'vision_statement')
+            }),
+            ('&#128221; Hero Bible Verse', {
+                'description': 'Shown on the homepage hero section.',
+                'fields': ('hero_bible_verse', 'hero_bible_text')
+            }),
+            ('&#128250; Livestream', {
+                'description': 'Paste your YouTube embed URL. Tick "Live right now?" during active services.',
+                'fields': ('livestream_embed_url', 'livestream_channel_url', 'is_live_now')
+            }),
+            ('&#128222; Contact Information', {
+                'fields': ('address', 'phone_primary', 'phone_secondary', 'whatsapp', 'email')
+            }),
+            ('&#128241; Social Media Links', {
+                'fields': ('facebook_url', 'instagram_url', 'youtube_url', 'twitter_url')
+            }),
+            ('&#128506; Google Maps', {
+                'description': 'Paste the full &lt;iframe&gt; embed code from Google Maps.',
+                'fields': ('google_maps_embed',)
+            }),
+            ('&#128444; Hero Background — Homepage', {'description': h, 'fields': ('bg_hero_url', 'bg_hero_file')}),
+            ('&#128444; About Section Image',         {'description': h, 'fields': ('bg_about_url', 'bg_about_file')}),
+            ('&#128444; Sermons Background',          {'description': h, 'fields': ('bg_sermons_url', 'bg_sermons_file')}),
+            ('&#128444; Events Background',           {'description': h, 'fields': ('bg_events_url', 'bg_events_file')}),
+            ('&#128444; Ministries Background',       {'description': h, 'fields': ('bg_ministries_url', 'bg_ministries_file')}),
+            ('&#128444; Testimonies Background',      {'description': h, 'fields': ('bg_testimonies_url', 'bg_testimonies_file')}),
+            ('&#128444; Give / CTA Banner',           {'description': h, 'fields': ('bg_give_url', 'bg_give_file')}),
+        ]
 
     def has_add_permission(self, request):
-        # Only allow one settings record
         return not ChurchSettings.objects.exists()
 
     def has_delete_permission(self, request, obj=None):
         return False
 
 
-# ── Service Times ─────────────────────────────────────────────
 @admin.register(ServiceTime)
 class ServiceTimeAdmin(admin.ModelAdmin):
     list_display  = ['service_name', 'day', 'start_time', 'end_time', 'description', 'order']
@@ -202,7 +214,8 @@ class FlyerAdmin(admin.ModelAdmin):
         ('Flyer Details', {'fields': ('title', 'caption', 'is_active', 'order')}),
         ('📸 Image', {
             'description': '⚡ RECOMMENDED: Upload file (saved to Cloudinary permanently) OR paste a Cloudinary/image URL below.',
-            'fields': ('image_file', 'image_url', '_preview'),
+            'description': '📌 Go to imgbb.com → upload → copy Direct link → paste in Image URL field below.',
+            'fields': ('image_url', 'image_file', '_preview'),
         }),
         ('🔗 Click-through Link (optional)', {'fields': ('link_url',)}),
         ('Info', {'fields': ('date_posted',)}),
