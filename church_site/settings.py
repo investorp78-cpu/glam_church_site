@@ -70,9 +70,31 @@ WSGI_APPLICATION = 'church_site.wsgi.application'
 
 # Use PostgreSQL on Render (set DATABASE_URL env var), fallback to SQLite locally
 import dj_database_url
-DATABASE_URL = os.environ.get('DATABASE_URL')
+
+DATABASE_URL = os.environ.get('DATABASE_URL', '')
+
 if DATABASE_URL:
-    DATABASES = {'default': dj_database_url.config(default=DATABASE_URL, conn_max_age=600)}
+    # Ensure SSL is always required (needed for Neon free tier)
+    if 'sslmode' not in DATABASE_URL:
+        sep = '&' if '?' in DATABASE_URL else '?'
+        DATABASE_URL = DATABASE_URL + sep + 'sslmode=require'
+
+    _db_config = dj_database_url.config(
+        default=DATABASE_URL,
+        conn_max_age=60,
+        conn_health_checks=True,
+    )
+    _db_config.setdefault('OPTIONS', {})
+    _db_config['OPTIONS'].update({
+        'sslmode':           'require',
+        'connect_timeout':   10,
+        'keepalives':        1,
+        'keepalives_idle':   30,
+        'keepalives_interval': 10,
+        'keepalives_count':  5,
+    })
+    DATABASES = {'default': _db_config}
+
 else:
     DATABASES = {
         'default': {
