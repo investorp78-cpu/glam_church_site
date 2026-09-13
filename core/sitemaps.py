@@ -6,8 +6,16 @@ class StaticViewSitemap(Sitemap):
     priority = 0.8
 
     def get_urls(self, page=1, site=None, protocol=None):
-        site = Site(domain='www.glafa.org', name='GLAFA')
-        return super(StaticViewSitemap, self).get_urls(page=page, site=site, protocol=protocol)
+        class MockSite():
+            domain = 'www.glafa.org'
+            name = 'GLAFA'
+
+        return super(StaticViewSitemap, self).get_urls(
+            page=page,
+            site=MockSite(),
+            protocol='https'
+        )
+
 
     def items(self):
         return [
