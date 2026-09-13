@@ -5,6 +5,11 @@ class StaticViewSitemap(Sitemap):
     changefreq = "weekly"
     priority = 0.8
 
+    def get_urls(self, page=1, site=None, protocol=None):
+        site = Site(domain='www.glafa.org', name='GLAFA')
+        return super(StaticViewSitemap, self).get_urls(page=page, site=site, protocol=protocol)
+
+
     def items(self):
         return [
             'home',
