@@ -12,6 +12,8 @@ CSRF_TRUSTED_ORIGINS = [
     'https://*.onrender.com',
     'http://127.0.0.1:8000',
     'http://localhost:8000',
+    'https://glafa.org',
+    'https://glafa.org',
 ]
 
 INSTALLED_APPS = [
@@ -22,8 +24,10 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'cloudinary_storage',
     'django.contrib.staticfiles',
+    'django.contrib.sitemaps',
     'cloudinary',
     'core',
+
 ]
 
 # ── Cloudinary storage (configured in models.py at import time) ──
