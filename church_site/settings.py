@@ -23,6 +23,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'cloudinary_storage',
+    'django.contrib.sites',
     'django.contrib.staticfiles',
     'django.contrib.sitemaps',
     'cloudinary',
