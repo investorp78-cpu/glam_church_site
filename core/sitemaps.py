@@ -7,15 +7,15 @@ class StaticViewSitemap(Sitemap):
 
     def items(self):
         return [
-            'home'
-            'sermons'
-            'events'
-            'about'
-            'give'
-            'contact'
-            'new_visitor'
-            'testimonies'
-            'live'
+            'home',
+            'sermons',
+            'events',
+            'about',
+            'give',
+            'contact',
+            'new_visitor',
+            'testimonies',
+            'live',
         ]
 
     def location(self, item):
