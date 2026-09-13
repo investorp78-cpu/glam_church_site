@@ -31,6 +31,8 @@ INSTALLED_APPS = [
 
 ]
 
+SITE_ID = 1
+
 # ── Cloudinary storage (configured in models.py at import time) ──
 CLOUDINARY_CLOUD_NAME = os.environ.get('CLOUDINARY_CLOUD_NAME', '')
 CLOUDINARY_API_KEY    = os.environ.get('CLOUDINARY_API_KEY', '')
