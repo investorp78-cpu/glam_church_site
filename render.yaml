@@ -9,3 +9,11 @@ services:
         value: glam-church-secret-key-2026-xyz-abc
       - key: DEBUG
         value: "False"
+      # Paste the real values in the Render dashboard (Environment tab).
+      # Never commit your API secret to GitHub.
+      - key: CLOUDINARY_CLOUD_NAME
+        sync: false
+      - key: CLOUDINARY_API_KEY
+        sync: false
+      - key: CLOUDINARY_API_SECRET
+        sync: false
