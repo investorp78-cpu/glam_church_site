@@ -33,20 +33,55 @@ INSTALLED_APPS = [
 
 SITE_ID = 1
 
-# ── Cloudinary storage (configured in models.py at import time) ──
-CLOUDINARY_CLOUD_NAME = os.environ.get('CLOUDINARY_CLOUD_NAME', '')
-CLOUDINARY_API_KEY    = os.environ.get('CLOUDINARY_API_KEY', '')
-CLOUDINARY_API_SECRET = os.environ.get('CLOUDINARY_API_SECRET', '')
+# ── Cloudinary ──────────────────────────────────────────────────────────
+# Accepts EITHER the three separate variables OR the single CLOUDINARY_URL
+# that Cloudinary shows on its dashboard (cloudinary://KEY:SECRET@CLOUDNAME).
+# Values are cleaned because stray spaces/quotes from copy-paste are the most
+# common reason Cloudinary rejects valid keys.
+import logging
+from urllib.parse import urlparse
 
-CLOUDINARY_STORAGE = {
-    'CLOUD_NAME': CLOUDINARY_CLOUD_NAME,
-    'API_KEY':    CLOUDINARY_API_KEY,
-    'API_SECRET': CLOUDINARY_API_SECRET,
-}
+def _clean(v):
+    return (v or '').strip().strip('"').strip("'").strip()
 
-if CLOUDINARY_CLOUD_NAME:
+CLOUDINARY_CLOUD_NAME = _clean(os.environ.get('CLOUDINARY_CLOUD_NAME'))
+CLOUDINARY_API_KEY    = _clean(os.environ.get('CLOUDINARY_API_KEY'))
+CLOUDINARY_API_SECRET = _clean(os.environ.get('CLOUDINARY_API_SECRET'))
+
+_cloud_url = _clean(os.environ.get('CLOUDINARY_URL'))
+if _cloud_url and not (CLOUDINARY_CLOUD_NAME and CLOUDINARY_API_KEY and CLOUDINARY_API_SECRET):
+    _u = urlparse(_cloud_url)
+    CLOUDINARY_CLOUD_NAME = CLOUDINARY_CLOUD_NAME or (_u.hostname or '')
+    CLOUDINARY_API_KEY    = CLOUDINARY_API_KEY    or (_u.username or '')
+    CLOUDINARY_API_SECRET = CLOUDINARY_API_SECRET or (_u.password or '')
+
+# Use one source of truth, so the Cloudinary SDK never sees two configs.
+os.environ.pop('CLOUDINARY_URL', None)
+
+USING_CLOUDINARY = bool(CLOUDINARY_CLOUD_NAME and CLOUDINARY_API_KEY and CLOUDINARY_API_SECRET)
+
+if USING_CLOUDINARY:
+    CLOUDINARY_STORAGE = {
+        'CLOUD_NAME': CLOUDINARY_CLOUD_NAME,
+        'API_KEY':    CLOUDINARY_API_KEY,
+        'API_SECRET': CLOUDINARY_API_SECRET,
+    }
+    import cloudinary
+    cloudinary.config(
+        cloud_name=CLOUDINARY_CLOUD_NAME,
+        api_key=CLOUDINARY_API_KEY,
+        api_secret=CLOUDINARY_API_SECRET,
+        secure=True,
+    )
+    # Every ImageField upload (admin "Choose file", member photos, testimony
+    # photos) now goes to Cloudinary instead of the server's temporary disk.
     DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
-    MEDIA_URL = f'https://res.cloudinary.com/{CLOUDINARY_CLOUD_NAME}/'
+else:
+    logging.getLogger(__name__).warning(
+        'CLOUDINARY credentials NOT found (need CLOUDINARY_CLOUD_NAME, '
+        'CLOUDINARY_API_KEY, CLOUDINARY_API_SECRET). Uploads will be saved to '
+        'local disk and LOST on the next deploy/restart.'
+    )
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',

@@ -9,7 +9,12 @@ from django.contrib import messages
 from django.db import IntegrityError
 from .models import *
 from .email_utils import notify_welcome
-import json, threading
+import json, threading, logging, io
+from django.contrib.admin.views.decorators import staff_member_required
+from django.core.management import call_command
+from django.http import HttpResponse
+
+logger = logging.getLogger(__name__)
 
 
 def get_base_ctx():
@@ -132,7 +137,11 @@ def submit_testimony(request):
         obj.photo_file = request.FILES['photo_file']
     elif profile and profile.photo_file:
         obj.photo_file = profile.photo_file
-    obj.save()
+    try:
+        obj.save()
+    except Exception:
+        logger.exception('Testimony save/upload failed')
+        return JsonResponse({'success': False, 'message': 'Your photo could not be uploaded. Please try again, or use a photo URL instead.'})
     return JsonResponse({'success': True, 'message': 'Thank you! Your testimony has been submitted for review.'})
 
 
@@ -233,5 +242,17 @@ def update_profile(request):
     profile.notify_announcements = 'notify_announcements' in request.POST
     if 'photo_file' in request.FILES:
         profile.photo_file = request.FILES['photo_file']
-    profile.save()
+    try:
+        profile.save()
+    except Exception:
+        logger.exception('Profile save/upload failed')
+        return JsonResponse({'success': False, 'message': 'Your photo could not be uploaded. Please try again.'})
     return JsonResponse({'success': True, 'message': 'Profile updated successfully.'})
+
+
+@staff_member_required
+def cloudinary_check(request):
+    """Staff-only: shows whether uploads really go to Cloudinary (visit /cloudinary-check/)."""
+    out = io.StringIO()
+    call_command('check_cloudinary', stdout=out)
+    return HttpResponse(out.getvalue(), content_type='text/plain')

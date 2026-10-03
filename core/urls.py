@@ -20,4 +20,5 @@ urlpatterns = [
     path('auth/logout/', views.logout_view, name='logout'),
     path('dashboard/', views.dashboard_view, name='dashboard'),
     path('dashboard/update-profile/', views.update_profile, name='update_profile'),
+    path('cloudinary-check/', views.cloudinary_check, name='cloudinary_check'),
 ]

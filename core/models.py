@@ -1,48 +1,15 @@
 from django.db import models
 from django.utils import timezone
 from django.contrib.auth.models import User
-import os
 
-# Configure Cloudinary and use CloudinaryField ONLY if cloud_name env var is set
-_CLOUD_NAME = os.environ.get('CLOUDINARY_CLOUD_NAME', '')
-_API_KEY     = os.environ.get('CLOUDINARY_API_KEY', '')
-_API_SECRET  = os.environ.get('CLOUDINARY_API_SECRET', '')
-
-USING_CLOUDINARY = False
-if _CLOUD_NAME and _API_KEY and _API_SECRET:
-    try:
-        import cloudinary
-        cloudinary.config(
-            cloud_name=_CLOUD_NAME,
-            api_key=_API_KEY,
-            api_secret=_API_SECRET,
-            secure=True,
-        )
-        from cloudinary.models import CloudinaryField as _CloudinaryField
-        USING_CLOUDINARY = True
-    except Exception:
-        USING_CLOUDINARY = False
-
+# Image fields are always plain ImageFields. Where the file actually lands
+# (Cloudinary or local disk) is decided by DEFAULT_FILE_STORAGE in settings.py,
+# so the model definition never changes and always matches the migrations.
 def ChurchImageField(folder='church', **kwargs):
-    # Strip kwargs that ImageField accepts but CloudinaryField doesn't and vice versa
-    vn = kwargs.pop('verbose_name', None)
-    ht = kwargs.pop('help_text', None)
-    if USING_CLOUDINARY:
-        kwargs.pop('upload_to', None)
-        kwargs.pop('null', None)
-        kwargs.pop('blank', None)
-        kwargs.pop('max_length', None)
-        f = _CloudinaryField(folder, blank=True, null=True, **kwargs)
-        if vn: f.verbose_name = vn
-        if ht: f.help_text = ht
-        return f
-    else:
-        kwargs.setdefault('blank', True)
-        kwargs.setdefault('null', True)
-        upload_to = kwargs.pop('upload_to', folder + '/')
-        if vn: kwargs['verbose_name'] = vn
-        if ht: kwargs['help_text'] = ht
-        return models.ImageField(upload_to=upload_to, **kwargs)
+    kwargs.setdefault('blank', True)
+    kwargs.setdefault('null', True)
+    kwargs.setdefault('upload_to', folder + '/')
+    return models.ImageField(**kwargs)
 
 class ChurchSettings(models.Model):
     church_name=models.CharField(max_length=200,default="Fountain of Grace Church")
