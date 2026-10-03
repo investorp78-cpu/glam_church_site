@@ -9,10 +9,14 @@ from django.contrib import messages
 from django.db import IntegrityError
 from .models import *
 from .email_utils import notify_welcome
+# <<<<<<< HEAD
 import json, threading, logging, io
 from django.contrib.admin.views.decorators import staff_member_required
 from django.core.management import call_command
 from django.http import HttpResponse
+# =======
+import json, threading, logging
+# >>>>>>> d6f43eac514515b84bb4a46cc97c0936df929c76
 
 logger = logging.getLogger(__name__)
 
